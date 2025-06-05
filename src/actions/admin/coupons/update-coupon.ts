@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { Coupon } from "@/types/custom.types";
+import { Coupon, CouponUpdateDto } from "@/types/custom.types";
 import { z } from "zod";
 
 // Schema validation cho cập nhật coupon
@@ -31,6 +31,11 @@ const updateCouponSchema = z.object({
 });
 
 type UpdateCouponData = z.infer<typeof updateCouponSchema>;
+
+// Type for the update data object
+type CouponUpdatePayload = CouponUpdateDto & {
+  updated_at: string;
+};
 
 type UpdateCouponResult =
   | { 
@@ -92,7 +97,7 @@ export async function updateCoupon(
     }
 
     // Tạo object update chỉ với các field được cung cấp
-    const updateData: Record<string, unknown> = {
+    const updateData: Partial<CouponUpdatePayload> = {
       updated_at: new Date().toISOString(),
     };
 

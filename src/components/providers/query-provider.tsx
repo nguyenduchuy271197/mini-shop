@@ -12,10 +12,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* Chỉ hiển thị devtools trong development */}
-      {process.env.NODE_ENV === "development" && (
-        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
-      )}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

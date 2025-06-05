@@ -1,5 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
 
+const isClientError = (error: Error & { status?: number }): boolean => {
+  return error.status ? error.status >= 400 && error.status < 500 : false;
+};
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -8,11 +12,9 @@ export const queryClient = new QueryClient({
       // Thời gian giữ cache trong memory (1 giờ)
       gcTime: 1000 * 60 * 60,
       // Retry khi query failed
-      retry: (failureCount, error: any) => {
+      retry: (failureCount: number, error: Error & { status?: number }) => {
         // Không retry nếu lỗi 4xx (client error)
-        if (error?.status >= 400 && error?.status < 500) {
-          return false;
-        }
+        if (isClientError(error)) return false;
         // Retry tối đa 3 lần cho các lỗi khác
         return failureCount < 3;
       },
