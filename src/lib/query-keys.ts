@@ -13,6 +13,13 @@ type ReportFilters = {
   user_id?: string;
 };
 
+type AdminCategoryFilters = {
+  parentId?: number | null;
+  isActive?: boolean;
+  searchTerm?: string;
+  includeTree?: boolean;
+};
+
 type ShippingData = {
   weight?: number;
   dimensions?: {
@@ -145,6 +152,9 @@ export const QUERY_KEYS = {
     categories: {
       all: [...adminKeys, "categories"] as const,
       lists: () => [...adminKeys, "categories", "list"] as const,
+      list: (filters?: AdminCategoryFilters) => [...adminKeys, "categories", "list", filters] as const,
+      detail: (categoryId: number | string) => [...adminKeys, "categories", "detail", categoryId] as const,
+      tree: () => [...adminKeys, "categories", "tree"] as const,
     },
     // Users/Customers
     users: {
@@ -157,24 +167,58 @@ export const QUERY_KEYS = {
     orders: {
       all: [...adminKeys, "orders"] as const,
       lists: () => [...adminKeys, "orders", "list"] as const,
-      analytics: () => [...adminKeys, "orders", "analytics"] as const,
-      pending: () => [...adminKeys, "orders", "pending"] as const,
+      list: (params?: object) => [...adminKeys, "orders", "list", params] as const,
+      analytics: (params?: object) => [...adminKeys, "orders", "analytics", params] as const,
+      pending: (params?: object) => [...adminKeys, "orders", "pending", params] as const,
     },
     // Payments
     payments: {
       all: [...adminKeys, "payments"] as const,
       lists: () => [...adminKeys, "payments", "list"] as const,
-      analytics: () => [...adminKeys, "payments", "analytics"] as const,
+      list: (params?: object) => [...adminKeys, "payments", "list", params] as const,
+      analytics: (params?: object) => [...adminKeys, "payments", "analytics", params] as const,
     },
     // Reviews
     reviews: {
       all: [...adminKeys, "reviews"] as const,
       lists: () => [...adminKeys, "reviews", "list"] as const,
+      list: (params?: object) => [...adminKeys, "reviews", "list", params] as const,
     },
     // Banners
     banners: {
       all: [...adminKeys, "banners"] as const,
       lists: () => [...adminKeys, "banners", "list"] as const,
+      list: (params?: object) => [...adminKeys, "banners", "list", params] as const,
+    },
+    // Coupons
+    coupons: {
+      all: [...adminKeys, "coupons"] as const,
+      lists: () => [...adminKeys, "coupons", "list"] as const,
+      list: (params?: object) => [...adminKeys, "coupons", "list", params] as const,
+      usage: (couponId: number) => [...adminKeys, "coupons", "usage", couponId] as const,
+    },
+    // Shipping
+    shipping: {
+      all: [...adminKeys, "shipping"] as const,
+      zones: (params?: object) => [...adminKeys, "shipping", "zones", params] as const,
+      rates: (zoneId: number) => [...adminKeys, "shipping", "rates", zoneId] as const,
+    },
+    // Files
+    files: {
+      all: [...adminKeys, "files"] as const,
+      url: (fileId: string) => [...adminKeys, "files", "url", fileId] as const,
+      signedUploadUrl: (filename: string) => [...adminKeys, "files", "signed-upload", filename] as const,
+    },
+    // Utils
+    utils: {
+      all: [...adminKeys, "utils"] as const,
+      slug: (text: string, type: string) => [...adminKeys, "utils", "slug", text, type] as const,
+      skuValidation: (sku: string, productId?: number) => [...adminKeys, "utils", "sku-validation", sku, productId] as const,
+      skuSuggestions: (productName: string, categoryName?: string, brand?: string) => [...adminKeys, "utils", "sku-suggestions", productName, categoryName, brand] as const,
+      skuAvailability: (skus: string[]) => [...adminKeys, "utils", "sku-availability", skus] as const,
+      sanitize: (content: string) => [...adminKeys, "utils", "sanitize", content] as const,
+      emailStatus: (messageId: string) => [...adminKeys, "utils", "email-status", messageId] as const,
+      smsStatus: (messageId: string) => [...adminKeys, "utils", "sms-status", messageId] as const,
     },
   },
 

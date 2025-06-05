@@ -68,6 +68,9 @@ export type AppPermission = Database["public"]["Enums"]["app_permission"];
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
+// Address type based on database schema
+export type AddressType = 'shipping' | 'billing';
+
 // Address data for order creation
 export type AddressData = {
   first_name: string;
