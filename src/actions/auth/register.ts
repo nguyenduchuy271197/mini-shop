@@ -25,28 +25,7 @@ export async function registerUser(data: RegisterData): Promise<RegisterResult> 
     // 2. Create Supabase client
     const supabase = createClient();
 
-    // 3. Check if email already exists
-    const { data: existingProfile, error: checkError } = await supabase
-      .from("profiles")
-      .select("email")
-      .eq("email", validatedData.email)
-      .single();
-
-    if (checkError && checkError.code !== "PGRST116") {
-      return {
-        success: false,
-        error: "Không thể kiểm tra email",
-      };
-    }
-
-    if (existingProfile) {
-      return {
-        success: false,
-        error: "Email đã được sử dụng",
-      };
-    }
-
-    // 4. Create user account
+    // 3. Create user account (Supabase will handle email uniqueness check)
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: validatedData.email,
       password: validatedData.password,
@@ -58,6 +37,14 @@ export async function registerUser(data: RegisterData): Promise<RegisterResult> 
     });
 
     if (authError) {
+      // Handle specific error cases
+      if (authError.message.includes("already registered") || authError.message.includes("already exists")) {
+        return {
+          success: false,
+          error: "Email đã được sử dụng",
+        };
+      }
+      
       return {
         success: false,
         error: authError.message || "Không thể tạo tài khoản",

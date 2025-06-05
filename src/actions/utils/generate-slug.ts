@@ -164,7 +164,7 @@ async function ensureUniqueSlug(
 }
 
 // Helper function validate slug format
-export function validateSlugFormat(slug: string): { isValid: boolean; error?: string } {
+export async function validateSlugFormat(slug: string): Promise<{ isValid: boolean; error?: string }> {
   if (!slug || slug.length === 0) {
     return { isValid: false, error: "Slug không được để trống" };
   }
