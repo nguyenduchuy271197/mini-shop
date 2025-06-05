@@ -2,20 +2,20 @@
 
 ## Tính năng chung cho tất cả người dùng
 
-| ID   | Nhóm tính năng | Tính năng              | Mô tả                                                                   | Độ ưu tiên | Dependencies |
-| ---- | -------------- | ---------------------- | ----------------------------------------------------------------------- | ---------- | ------------ |
-| FR01 | Xác thực       | Đăng ký tài khoản      | Cho phép người dùng tạo tài khoản với vai trò cụ thể (khách hàng/admin) | Cao        | Không có     |
-| FR02 | Xác thực       | Đăng nhập/Xác thực     | Cho phép người dùng đăng nhập vào hệ thống                              | Cao        | FR01         |
-| FR03 | Xác thực       | Quản lý hồ sơ cá nhân  | Cho phép người dùng xem và chỉnh sửa thông tin cá nhân                  | Cao        | FR01, FR02   |
-| FR04 | Xác thực       | Đăng xuất              | Cho phép người dùng đăng xuất khỏi hệ thống                             | Trung bình | FR02         |
-| FR05 | Xác thực       | Đổi mật khẩu           | Cho phép người dùng thay đổi mật khẩu                                   | Trung bình | FR02         |
-| FR06 | Xác thực       | Quên mật khẩu          | Cho phép người dùng khôi phục mật khẩu qua email                        | Trung bình | FR01         |
-| FR07 | Sản phẩm       | Xem danh sách sản phẩm | Hiển thị danh sách sản phẩm có phân trang và sắp xếp                    | Cao        | Không có     |
-| FR08 | Sản phẩm       | Xem chi tiết sản phẩm  | Hiển thị thông tin chi tiết sản phẩm, hình ảnh, giá, mô tả              | Cao        | FR07         |
-| FR09 | Sản phẩm       | Tìm kiếm sản phẩm      | Cho phép tìm kiếm sản phẩm theo tên, category, khoảng giá               | Cao        | FR07         |
-| FR10 | Sản phẩm       | Lọc sản phẩm           | Lọc sản phẩm theo danh mục, giá, thương hiệu, đánh giá                  | Cao        | FR07         |
-| FR11 | Sản phẩm       | Phân loại sản phẩm     | Hiển thị danh mục sản phẩm và số lượng sản phẩm trong từng danh mục     | Trung bình | FR07         |
-| FR12 | Hệ thống       | Xem thông tin chung    | Hiển thị thông tin về cửa hàng, chính sách bảo mật, điều khoản sử dụng  | Thấp       | Không có     |
+| ID   | Nhóm tính năng | Tính năng              | Mô tả                                                                  | Độ ưu tiên | Dependencies |
+| ---- | -------------- | ---------------------- | ---------------------------------------------------------------------- | ---------- | ------------ |
+| FR01 | Xác thực       | Đăng ký tài khoản      | Cho phép người dùng tạo tài khoản khách hàng                           | Cao        | Không có     |
+| FR02 | Xác thực       | Đăng nhập/Xác thực     | Cho phép người dùng đăng nhập vào hệ thống                             | Cao        | FR01         |
+| FR03 | Xác thực       | Quản lý hồ sơ cá nhân  | Cho phép người dùng xem và chỉnh sửa thông tin cá nhân                 | Cao        | FR01, FR02   |
+| FR04 | Xác thực       | Đăng xuất              | Cho phép người dùng đăng xuất khỏi hệ thống                            | Trung bình | FR02         |
+| FR05 | Xác thực       | Đổi mật khẩu           | Cho phép người dùng thay đổi mật khẩu                                  | Trung bình | FR02         |
+| FR06 | Xác thực       | Quên mật khẩu          | Cho phép người dùng khôi phục mật khẩu qua email                       | Trung bình | FR01         |
+| FR07 | Sản phẩm       | Xem danh sách sản phẩm | Hiển thị danh sách sản phẩm có phân trang và sắp xếp                   | Cao        | Không có     |
+| FR08 | Sản phẩm       | Xem chi tiết sản phẩm  | Hiển thị thông tin chi tiết sản phẩm, hình ảnh, giá, mô tả             | Cao        | FR07         |
+| FR09 | Sản phẩm       | Tìm kiếm sản phẩm      | Cho phép tìm kiếm sản phẩm theo tên, category, khoảng giá              | Cao        | FR07         |
+| FR10 | Sản phẩm       | Lọc sản phẩm           | Lọc sản phẩm theo danh mục, giá, thương hiệu, đánh giá                 | Cao        | FR07         |
+| FR11 | Sản phẩm       | Phân loại sản phẩm     | Hiển thị danh mục sản phẩm và số lượng sản phẩm trong từng danh mục    | Trung bình | FR07         |
+| FR12 | Hệ thống       | Xem thông tin chung    | Hiển thị thông tin về cửa hàng, chính sách bảo mật, điều khoản sử dụng | Thấp       | Không có     |
 
 ## Tính năng dành cho Khách hàng
 
@@ -35,6 +35,8 @@
 | FR24 | Cá nhân hóa    | Quản lý địa chỉ giao hàng    | Thêm, sửa, xóa địa chỉ giao hàng                                | Trung bình | FR03         |
 
 ## Tính năng dành cho Quản trị viên/Admin
+
+_Lưu ý: Tài khoản admin được tạo sẵn trong hệ thống, không thông qua đăng ký công khai_
 
 | ID   | Nhóm tính năng     | Tính năng                 | Mô tả                                                            | Độ ưu tiên | Dependencies |
 | ---- | ------------------ | ------------------------- | ---------------------------------------------------------------- | ---------- | ------------ |

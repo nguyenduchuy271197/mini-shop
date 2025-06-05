@@ -8,7 +8,6 @@ const registerSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
   password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
   fullName: z.string().min(2, "Họ tên phải có ít nhất 2 ký tự"),
-  role: z.enum(["customer", "admin"]).optional().default("customer"),
 });
 
 type RegisterData = z.infer<typeof registerSchema>;
@@ -70,21 +69,6 @@ export async function registerUser(data: RegisterData): Promise<RegisterResult> 
         success: false,
         error: "Không thể tạo tài khoản",
       };
-    }
-
-    // 5. If admin role requested, update user role
-    if (validatedData.role === "admin") {
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .upsert({
-          user_id: authData.user.id,
-          role: "admin",
-        });
-
-      if (roleError) {
-        // Log error but don't fail registration
-        console.error("Không thể gán quyền admin:", roleError);
-      }
     }
 
     return {
