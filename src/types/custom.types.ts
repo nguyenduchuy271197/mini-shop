@@ -99,29 +99,8 @@ export type ProductFilters = {
   in_stock?: boolean;
 };
 
-// Custom Claims Types for JWT
-export interface CustomClaims {
-  user_role: AppRole | null;
-  permissions: string[];
-}
 
-// Extended User type with custom claims
-export interface UserWithClaims {
-  id: string;
-  email?: string;
-  user_metadata?: Record<string, string | number | boolean | null>;
-  app_metadata?: Record<string, string | number | boolean | null>;
-  custom_claims?: CustomClaims;
-}
 
-// RBAC Context type for React context
-export interface RBACContext {
-  userRole: AppRole | null;
-  permissions: string[];
-  hasPermission: (permission: AppPermission) => boolean;
-  isLoading: boolean;
-  refreshPermissions: () => Promise<void>;
-}
 
-// Helper type for permission checking
-export type PermissionChecker = (permission: AppPermission) => boolean;
+
+
