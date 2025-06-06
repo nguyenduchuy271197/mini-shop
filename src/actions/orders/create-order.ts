@@ -308,13 +308,12 @@ export async function createOrder(data: CreateOrderData): Promise<CreateOrderRes
         .eq("id", product.id);
     }
 
-    // 12. Clear cart if items were from cart
-    if (!validatedData.order_items) {
-      await supabase
-        .from("cart_items")
-        .delete()
-        .eq("user_id", user.id);
-    }
+    // 12. Clear cart after successful order creation
+    // Always clear cart for the user since order is created successfully
+    await supabase
+      .from("cart_items")
+      .delete()
+      .eq("user_id", user.id);
 
     // 13. Update coupon usage count
     if (couponId) {

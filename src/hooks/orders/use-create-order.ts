@@ -34,6 +34,10 @@ export function useCreateOrder() {
         // Invalidate related queries
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders.all });
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.all });
+        
+        // Also specifically invalidate cart details and total
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.details() });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.total() });
       } else {
         toast({
           title: "Lỗi",
