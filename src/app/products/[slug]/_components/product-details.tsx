@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Package, Truck, Shield, RotateCcw } from "lucide-react";
 import AddToCartButton from "@/components/cart/add-to-cart-button";
+import WishlistButton from "@/components/ui/wishlist-button";
 import type { Product, Category } from "@/types/custom.types";
 
 type ProductWithCategory = Product & {
@@ -120,6 +121,17 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           showQuantitySelector={true}
           className="w-full"
         />
+
+        {/* Wishlist Button */}
+        <div className="flex justify-center">
+          <WishlistButton
+            productId={product.id}
+            size="lg"
+            variant="outline"
+            showText={true}
+            className="min-w-[200px]"
+          />
+        </div>
       </div>
 
       {/* Tags */}

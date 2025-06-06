@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
 import AddToCartButton from "@/components/cart/add-to-cart-button";
+import WishlistButton from "@/components/ui/wishlist-button";
 import type { Product, Category } from "@/types/custom.types";
 
 type ProductWithCategory = Product & {
@@ -26,8 +27,8 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
-      <Link href={`/products/${product.slug}`}>
-        <div className="relative aspect-square overflow-hidden">
+      <div className="relative aspect-square overflow-hidden">
+        <Link href={`/products/${product.slug}`}>
           {/* Product Image */}
           {product.images && product.images.length > 0 ? (
             <Image
@@ -42,34 +43,40 @@ export default function ProductCard({ product }: ProductCardProps) {
               <Package className="h-16 w-16 text-gray-400" />
             </div>
           )}
+        </Link>
 
-          {/* Badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {product.is_featured && (
-              <Badge variant="secondary" className="text-xs">
-                Nổi bật
-              </Badge>
-            )}
-            {isOutOfStock && (
-              <Badge variant="destructive" className="text-xs">
-                Hết hàng
-              </Badge>
-            )}
+        {/* Badges */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {product.is_featured && (
+            <Badge variant="secondary" className="text-xs">
+              Nổi bật
+            </Badge>
+          )}
+          {isOutOfStock && (
+            <Badge variant="destructive" className="text-xs">
+              Hết hàng
+            </Badge>
+          )}
+        </div>
+
+        {/* Top-right corner: Wishlist Button + Category Badge */}
+        <div className="absolute top-2 right-2 flex flex-col gap-2">
+          {/* Wishlist Button - Outside of Link to prevent event bubbling */}
+          <div className="flex justify-end">
+            <WishlistButton productId={product.id} size="sm" />
           </div>
 
           {/* Category Badge */}
           {product.category && (
-            <div className="absolute top-2 right-2">
-              <Badge
-                variant="outline"
-                className="text-xs bg-white/80 backdrop-blur-sm"
-              >
-                {product.category.name}
-              </Badge>
-            </div>
+            <Badge
+              variant="outline"
+              className="text-xs bg-white/80 backdrop-blur-sm"
+            >
+              {product.category.name}
+            </Badge>
           )}
         </div>
-      </Link>
+      </div>
 
       <CardContent className="p-4">
         <div className="space-y-2">
