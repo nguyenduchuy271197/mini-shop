@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useProfile } from "@/hooks/users/use-profile";
 import { useLogout } from "@/hooks/auth/use-logout";
+import { useCart } from "@/hooks/cart";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function Header() {
 
   const { data: profile } = useProfile();
   const { mutate: logout } = useLogout();
+  const { data: cartData } = useCart();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,14 +105,22 @@ export default function Header() {
             </Button>
 
             {/* Cart */}
-            <Button variant="ghost" size="sm" className="relative p-2">
-              <ShoppingCart className="h-5 w-5" />
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
-              >
-                0
-              </Badge>
+            <Button variant="ghost" size="sm" className="relative p-2" asChild>
+              <Link href="/cart">
+                <ShoppingCart className="h-5 w-5" />
+                {cartData?.cartItems && cartData.cartItems.length > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
+                  >
+                    {cartData.cartItems.reduce(
+                      (total: number, item: { quantity: number }) =>
+                        total + item.quantity,
+                      0
+                    )}
+                  </Badge>
+                )}
+              </Link>
             </Button>
 
             {/* User Menu */}

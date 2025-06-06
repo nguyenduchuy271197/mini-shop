@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
+import AddToCartButton from "@/components/cart/add-to-cart-button";
 import type { Product, Category } from "@/types/custom.types";
 
 type ProductWithCategory = Product & {
@@ -24,8 +25,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = product.stock_quantity <= 0;
 
   return (
-    <Link href={`/products/${product.slug}`}>
-      <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+    <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
+      <Link href={`/products/${product.slug}`}>
         <div className="relative aspect-square overflow-hidden">
           {/* Product Image */}
           {product.images && product.images.length > 0 ? (
@@ -68,49 +69,62 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
         </div>
+      </Link>
 
-        <CardContent className="p-4">
-          <div className="space-y-2">
-            {/* Product Name */}
+      <CardContent className="p-4">
+        <div className="space-y-2">
+          {/* Product Name */}
+          <Link href={`/products/${product.slug}`}>
             <h3 className="font-medium text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2">
               {product.name}
             </h3>
+          </Link>
 
-            {/* Brand */}
-            {product.brand && (
-              <p className="text-xs text-muted-foreground">{product.brand}</p>
-            )}
+          {/* Brand */}
+          {product.brand && (
+            <p className="text-xs text-muted-foreground">{product.brand}</p>
+          )}
 
-            {/* Price */}
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-primary">
-                {formatPrice(product.price)}
+          {/* Price */}
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-primary">
+              {formatPrice(product.price)}
+            </span>
+            {product.compare_price && product.compare_price > product.price && (
+              <span className="text-xs text-muted-foreground line-through">
+                {formatPrice(product.compare_price)}
               </span>
-              {product.compare_price &&
-                product.compare_price > product.price && (
-                  <span className="text-xs text-muted-foreground line-through">
-                    {formatPrice(product.compare_price)}
-                  </span>
-                )}
-            </div>
-
-            {/* Rating - TODO: Implement when review aggregation is available */}
-
-            {/* Stock Status */}
-            <div className="text-xs">
-              {isOutOfStock ? (
-                <span className="text-destructive">Hết hàng</span>
-              ) : product.stock_quantity <= 10 ? (
-                <span className="text-orange-600">
-                  Chỉ còn {product.stock_quantity} sản phẩm
-                </span>
-              ) : (
-                <span className="text-green-600">Còn hàng</span>
-              )}
-            </div>
+            )}
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+
+          {/* Rating - TODO: Implement when review aggregation is available */}
+
+          {/* Stock Status */}
+          <div className="text-xs">
+            {isOutOfStock ? (
+              <span className="text-destructive">Hết hàng</span>
+            ) : product.stock_quantity <= 10 ? (
+              <span className="text-orange-600">
+                Chỉ còn {product.stock_quantity} sản phẩm
+              </span>
+            ) : (
+              <span className="text-green-600">Còn hàng</span>
+            )}
+          </div>
+        </div>
+
+        {/* Add to Cart Button */}
+        <div className="mt-3">
+          <AddToCartButton
+            productId={product.id}
+            maxQuantity={product.stock_quantity}
+            disabled={isOutOfStock}
+            variant="outline"
+            size="sm"
+            className="w-full"
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 }

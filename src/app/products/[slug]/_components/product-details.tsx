@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Package, Truck, Shield, RotateCcw } from "lucide-react";
+import AddToCartButton from "@/components/cart/add-to-cart-button";
 import type { Product, Category } from "@/types/custom.types";
 
 type ProductWithCategory = Product & {
@@ -107,6 +108,18 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             </span>
           )}
         </div>
+      </div>
+
+      {/* Add to Cart Section */}
+      <div className="space-y-4">
+        <AddToCartButton
+          productId={product.id}
+          maxQuantity={product.stock_quantity}
+          disabled={isOutOfStock}
+          size="lg"
+          showQuantitySelector={true}
+          className="w-full"
+        />
       </div>
 
       {/* Tags */}
