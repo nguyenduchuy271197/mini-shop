@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Tag, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCartTotal } from "@/hooks/cart";
 
 export default function CartSummary() {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | undefined>();
+  const [mounted, setMounted] = useState(false);
 
   const {
     data: cartTotalData,
@@ -18,6 +20,10 @@ export default function CartSummary() {
   } = useCartTotal({
     couponCode: appliedCoupon,
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -39,23 +45,13 @@ export default function CartSummary() {
     await refetch();
   };
 
+  // Prevent hydration mismatch by not rendering different content on server vs client
+  if (!mounted) {
+    return <CartSummarySkeleton />;
+  }
+
   if (isLoading) {
-    return (
-      <div className="border rounded-lg p-6 space-y-4 animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-          </div>
-          <div className="flex justify-between">
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-          </div>
-        </div>
-        <div className="h-10 bg-gray-200 rounded"></div>
-      </div>
-    );
+    return <CartSummarySkeleton />;
   }
 
   const cartTotal = cartTotalData?.breakdown;
@@ -169,6 +165,34 @@ export default function CartSummary() {
           <li>• Hỗ trợ đổi trả trong 7 ngày</li>
         </ul>
       </div>
+    </div>
+  );
+}
+
+function CartSummarySkeleton() {
+  return (
+    <div className="border rounded-lg p-6 space-y-4">
+      <Skeleton className="h-6 w-1/2" />
+      <div className="space-y-3">
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-4 w-1/4" />
+        </div>
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-4 w-1/4" />
+        </div>
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-4 w-1/4" />
+        </div>
+        <hr />
+        <div className="flex justify-between">
+          <Skeleton className="h-5 w-1/3" />
+          <Skeleton className="h-5 w-1/4" />
+        </div>
+      </div>
+      <Skeleton className="h-10 w-full" />
     </div>
   );
 }

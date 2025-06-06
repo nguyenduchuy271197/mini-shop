@@ -1,29 +1,26 @@
 "use client";
 
 import { useCart } from "@/hooks/cart";
+import { useEffect, useState } from "react";
 import CartEmpty from "./cart-empty";
 import CartItemCard from "./cart-item-card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CartItems() {
   const { data: cartData, isLoading, error } = useCart();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering different content on server vs client
+  if (!mounted) {
+    return <CartItemsSkeleton />;
+  }
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="border rounded-lg p-4 animate-pulse">
-            <div className="flex items-center space-x-4">
-              <div className="h-20 w-20 bg-gray-200 rounded"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+    return <CartItemsSkeleton />;
   }
 
   if (error) {
@@ -50,6 +47,25 @@ export default function CartItems() {
 
       {cartItems.map((item) => (
         <CartItemCard key={item.id} item={item} />
+      ))}
+    </div>
+  );
+}
+
+function CartItemsSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="border rounded-lg p-4 space-y-4">
+          <div className="flex items-center space-x-4">
+            <Skeleton className="h-20 w-20 rounded" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-4 w-1/4" />
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   );
