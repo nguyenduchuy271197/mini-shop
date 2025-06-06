@@ -1,0 +1,23 @@
+import { Suspense } from "react";
+import { AdminProductsHeader } from "./_components/admin-products-header";
+import { AdminProductsStats } from "./_components/admin-products-stats";
+import { AdminProductsContent } from "./_components/admin-products-content";
+
+export default function AdminProductsPage() {
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <AdminProductsHeader />
+
+      {/* Statistics */}
+      <Suspense
+        fallback={<div className="h-24 bg-gray-100 rounded-lg animate-pulse" />}
+      >
+        <AdminProductsStats />
+      </Suspense>
+
+      {/* Products Content (Filters + Table) */}
+      <AdminProductsContent />
+    </div>
+  );
+}

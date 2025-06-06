@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { User, Settings, LogOut, ChevronDown } from "lucide-react";
+import { User as UserIcon, Settings, LogOut, ChevronDown } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/types/custom.types";
 
@@ -49,7 +49,7 @@ export function AdminUserMenu({ user, profile }: AdminUserMenuProps) {
             />
           ) : (
             <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-              <User className="h-5 w-5 text-gray-600" />
+              <UserIcon className="h-5 w-5 text-gray-600" />
             </div>
           )}
           <span className="hidden md:block text-gray-700 font-medium">
@@ -79,7 +79,7 @@ export function AdminUserMenu({ user, profile }: AdminUserMenuProps) {
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               onClick={() => setIsOpen(false)}
             >
-              <User className="mr-3 h-4 w-4" />
+              <UserIcon className="mr-3 h-4 w-4" />
               Hồ sơ cá nhân
             </Link>
 

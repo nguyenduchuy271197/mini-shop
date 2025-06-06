@@ -11,11 +11,9 @@ export async function AdminHeader() {
   } = await supabase.auth.getUser();
 
   // Get user profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user?.id)
-    .single();
+  const { data: profile } = user?.id
+    ? await supabase.from("profiles").select("*").eq("id", user.id).single()
+    : { data: null };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">

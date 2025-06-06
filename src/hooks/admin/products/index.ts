@@ -16,7 +16,8 @@ export { useImportProducts } from "./use-import-products";
 export type { 
   UseAdminProductsParams, 
   AdminProductsResponse, 
-  ProductFilters 
+  ProductFilters,
+  ProductWithCategory
 } from "./use-admin-products";
 
 export type { 

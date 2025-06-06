@@ -5,12 +5,10 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   ShoppingBag,
-  Tag,
   Users,
   ClipboardList,
   CreditCard,
   BarChart3,
-  Gift,
   Truck,
   MessageSquare,
   Megaphone,

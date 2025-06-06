@@ -1,7 +1,7 @@
-import HeroSection from "./(main)/_components/hero-section";
-import FeaturedProducts from "./(main)/_components/featured-products";
-import CategoriesSection from "./(main)/_components/categories-section";
-import BenefitsSection from "./(main)/_components/benefits-section";
+import HeroSection from "./_components/hero-section";
+import FeaturedProducts from "./_components/featured-products";
+import CategoriesSection from "./_components/categories-section";
+import BenefitsSection from "./_components/benefits-section";
 
 export default function HomePage() {
   return (

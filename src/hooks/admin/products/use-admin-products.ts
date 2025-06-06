@@ -15,8 +15,17 @@ interface AdminProductFilters extends ProductFilters {
 
 type UseAdminProductsParams = Partial<AdminProductFilters & PaginationParams>;
 
+// Product with category relation
+type ProductWithCategory = Product & {
+  categories?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
+};
+
 interface AdminProductsResponse {
-  products: Product[];
+  products: ProductWithCategory[];
   total: number;
   page: number;
   limit: number;
@@ -172,4 +181,4 @@ export function useAdminProducts(params: UseAdminProductsParams = {}) {
   });
 }
 
-export type { UseAdminProductsParams, AdminProductsResponse, ProductFilters }; 
+export type { UseAdminProductsParams, AdminProductsResponse, ProductFilters, ProductWithCategory }; 
