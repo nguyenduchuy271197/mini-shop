@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryProvider } from "@/components/providers/query-provider";
-import { MainLayout } from "@/components/layout";
 
 export const metadata: Metadata = {
   title: "Mini Shop - Cửa hàng trực tuyến",
@@ -18,7 +17,7 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`antialiased`}>
         <QueryProvider>
-          <MainLayout>{children}</MainLayout>
+          {children}
           <Toaster />
         </QueryProvider>
       </body>

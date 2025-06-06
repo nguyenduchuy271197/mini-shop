@@ -38,10 +38,13 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protected routes that require authentication
-  const protectedRoutes = ['/dashboard']
+  const protectedRoutes = ['/dashboard', '/admin']
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   )
+
+  // Admin routes that require admin role
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
 
   // Public routes that don't require authentication
   const publicRoutes = ['/auth', '/login', '/register', '/']
@@ -57,10 +60,32 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If user is logged in and trying to access auth pages, redirect to dashboard
+  // Check admin role for admin routes
+  if (user && isAdminRoute) {
+    const { data: userRole } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single()
+
+    if (!userRole || userRole.role !== 'admin') {
+      // Not admin, redirect to customer dashboard
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // If user is logged in and trying to access auth pages, redirect to appropriate dashboard
   if (user && request.nextUrl.pathname.startsWith('/auth')) {
+    const { data: userRole } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single()
+
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = userRole?.role === 'admin' ? '/admin' : '/dashboard'
     return NextResponse.redirect(url)
   }
 
