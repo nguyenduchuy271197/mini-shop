@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 export function AdminLowStockAlertWrapper() {
   const { toast } = useToast();
@@ -75,9 +76,11 @@ export function AdminLowStockAlertWrapper() {
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
                   {product.images && product.images.length > 0 ? (
-                    <img
+                    <Image
                       src={product.images[0]}
                       alt={product.name}
+                      width={40}
+                      height={40}
                       className="h-full w-full object-cover"
                     />
                   ) : (

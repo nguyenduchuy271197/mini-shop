@@ -47,6 +47,7 @@ import {
   useReorderBanners,
 } from "@/hooks/admin/banners";
 import type { Banner, BannerFilters } from "@/hooks/admin/banners";
+import Image from "next/image";
 import {
   bannerStatusOptions,
   bannerPositionOptions,
@@ -318,9 +319,11 @@ export default function BannersList({
                       <TableCell>
                         <div className="flex items-center gap-3">
                           {banner.image_url ? (
-                            <img
+                            <Image
                               src={banner.image_url}
                               alt={banner.title}
+                              width={64}
+                              height={40}
                               className="w-16 h-10 object-cover rounded border"
                             />
                           ) : (

@@ -5,13 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 interface BannerImageUploadProps {
   imageUrl: string;
   onImageChange: (url: string) => void;
 }
 
-export default function BannerImageUpload({ imageUrl, onImageChange }: BannerImageUploadProps) {
+export default function BannerImageUpload({
+  imageUrl,
+  onImageChange,
+}: BannerImageUploadProps) {
   const { toast } = useToast();
 
   return (
@@ -26,9 +30,11 @@ export default function BannerImageUpload({ imageUrl, onImageChange }: BannerIma
 
         {imageUrl && (
           <div className="relative inline-block">
-            <img 
-              src={imageUrl} 
+            <Image
+              src={imageUrl}
               alt="Preview"
+              width={320}
+              height={128}
               className="max-w-sm h-32 object-cover rounded border"
               onError={() => {
                 toast({

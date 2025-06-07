@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 interface AdminInventoryTableProps {
   filters: {
@@ -225,9 +226,11 @@ export function AdminInventoryTable({ filters }: AdminInventoryTableProps) {
                           <div className="flex items-center gap-3">
                             <div className="h-12 w-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
                               {product.images && product.images.length > 0 ? (
-                                <img
+                                <Image
                                   src={product.images[0]}
                                   alt={product.name}
+                                  width={48}
+                                  height={48}
                                   className="h-full w-full object-cover"
                                 />
                               ) : (

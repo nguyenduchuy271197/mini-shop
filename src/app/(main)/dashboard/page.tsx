@@ -21,7 +21,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Profile Card */}
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
@@ -34,7 +34,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild className="w-full">
+              <Button asChild className="w-full" variant="outline">
                 <Link href="/dashboard/profile">Xem thông tin</Link>
               </Button>
             </CardContent>
@@ -93,21 +93,6 @@ export default function DashboardPage() {
               </Button>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-12">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Thao tác nhanh
-          </h2>
-          <div className="flex flex-wrap gap-4">
-            <Button asChild>
-              <Link href="/">Tiếp tục mua sắm</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/profile">Cập nhật thông tin</Link>
-            </Button>
-          </div>
         </div>
       </div>
     </div>

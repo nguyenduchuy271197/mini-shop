@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,23 +19,13 @@ import { useCart } from "@/hooks/cart";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
   const { data: profile } = useProfile();
   const { mutate: logout } = useLogout();
   const { data: cartData } = useCart();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery("");
-    }
-  };
-
   const navItems = [
-    { href: "/", label: "Trang chủ" },
     { href: "/products", label: "Sản phẩm" },
     { href: "/categories", label: "Danh mục" },
     { href: "/about", label: "Giới thiệu" },
@@ -52,7 +41,6 @@ export default function Header() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">MS</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">Mini Shop</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -67,30 +55,6 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-
-          {/* Search Bar */}
-          <form
-            onSubmit={handleSearch}
-            className="hidden lg:flex items-center flex-1 max-w-md mx-8"
-          >
-            <div className="relative w-full">
-              <Input
-                type="text"
-                placeholder="Tìm kiếm sản phẩm..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10"
-              />
-              <Button
-                type="submit"
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </form>
 
           {/* Right Actions */}
           <div className="flex items-center space-x-4">
@@ -111,7 +75,7 @@ export default function Header() {
                 {cartData?.cartItems && cartData.cartItems.length > 0 && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
                   >
                     {cartData.cartItems.reduce(
                       (total: number, item: { quantity: number }) =>
@@ -139,7 +103,7 @@ export default function Header() {
                     <Link href="/dashboard/orders">Đơn hàng</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/favorites">Yêu thích</Link>
+                    <Link href="/dashboard/wishlist">Yêu thích</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout()}>
