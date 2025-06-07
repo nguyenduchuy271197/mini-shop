@@ -7,6 +7,7 @@ import type { PaginationParams } from "@/types/custom.types";
 
 type SearchFilters = {
   categoryId?: number;
+  categoryIds?: number[];
   minPrice?: number;
   maxPrice?: number;
   brand?: string;

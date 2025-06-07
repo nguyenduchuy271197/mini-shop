@@ -8,8 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCategories } from "@/hooks/categories";
-import { Loader2, Filter, X } from "lucide-react";
+import { useCategoryTree } from "@/hooks/categories";
+import { Loader2, Filter, X, ChevronRight } from "lucide-react";
+import { Category } from "@/types/custom.types";
+
+// Extended category type for tree structure
+type CategoryTreeNode = Category & {
+  product_count?: number;
+  children: CategoryTreeNode[];
+  level: number;
+  path: string[];
+};
 
 interface ProductsFiltersProps {
   filters: {
@@ -28,15 +37,51 @@ export default function ProductsFilters({
 }: ProductsFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: categoriesData, isLoading: categoriesLoading } = useCategories({
-    includeProductCount: true,
-  });
+  const { data: categoryTreeData, isLoading: categoriesLoading } =
+    useCategoryTree({
+      includeProductCount: true,
+    });
 
   const [minPrice, setMinPrice] = useState(filters.minPrice?.toString() || "");
   const [maxPrice, setMaxPrice] = useState(filters.maxPrice?.toString() || "");
   const [brandFilter, setBrandFilter] = useState(brand);
+  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(
+    new Set()
+  );
 
-  const categories = categoriesData?.success ? categoriesData.categories : [];
+  const categories = categoryTreeData?.success
+    ? categoryTreeData.categories
+    : [];
+
+  // Helper function to collect all child category IDs recursively
+  const collectAllChildCategoryIds = (category: CategoryTreeNode): number[] => {
+    const ids = [category.id];
+
+    if (category.children && category.children.length > 0) {
+      category.children.forEach((child) => {
+        ids.push(...collectAllChildCategoryIds(child));
+      });
+    }
+
+    return ids;
+  };
+
+  // Helper function to find category by ID in the tree
+  const findCategoryById = (
+    categories: CategoryTreeNode[],
+    id: number
+  ): CategoryTreeNode | null => {
+    for (const category of categories) {
+      if (category.id === id) {
+        return category;
+      }
+      if (category.children && category.children.length > 0) {
+        const found = findCategoryById(category.children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
 
   const updateFilter = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams);
@@ -55,10 +100,29 @@ export default function ProductsFilters({
 
   const handleCategoryChange = (categoryId: number, checked: boolean) => {
     if (checked) {
-      updateFilter("category", categoryId.toString());
+      // Find the selected category and collect all its child IDs
+      const selectedCategory = findCategoryById(categories, categoryId);
+      if (selectedCategory) {
+        const allCategoryIds = collectAllChildCategoryIds(selectedCategory);
+        // Pass comma-separated list of category IDs
+        updateFilter("category", allCategoryIds.join(","));
+      } else {
+        // Fallback to single category ID
+        updateFilter("category", categoryId.toString());
+      }
     } else {
       updateFilter("category", null);
     }
+  };
+
+  const toggleCategoryExpanded = (categoryId: number) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
   };
 
   const handlePriceFilter = () => {
@@ -111,6 +175,85 @@ export default function ProductsFilters({
     filters.brand ||
     filters.inStock;
 
+  // Check if current category or any of its parents/children are selected
+  const isCategorySelected = (category: CategoryTreeNode): boolean => {
+    if (!filters.categoryId) return false;
+
+    // Check if this category is the selected one
+    if (category.id === filters.categoryId) return true;
+
+    // Check if this category is a child of the selected category
+    const selectedCategory = findCategoryById(categories, filters.categoryId);
+    if (selectedCategory) {
+      const allCategoryIds = collectAllChildCategoryIds(selectedCategory);
+      return allCategoryIds.includes(category.id);
+    }
+
+    return false;
+  };
+
+  // Render category item recursively
+  const renderCategoryItem = (
+    category: CategoryTreeNode,
+    level: number = 0
+  ) => (
+    <div key={category.id} className="space-y-1">
+      <div
+        className="flex items-center space-x-2"
+        style={{ paddingLeft: `${level * 16}px` }}
+      >
+        {category.children && category.children.length > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 p-0 hover:bg-transparent"
+            onClick={() => toggleCategoryExpanded(category.id)}
+          >
+            <ChevronRight
+              className={`h-3 w-3 transition-transform ${
+                expandedCategories.has(category.id) ? "rotate-90" : ""
+              }`}
+            />
+          </Button>
+        )}
+        {(!category.children || category.children.length === 0) && (
+          <div className="w-4" /> // Spacer for alignment
+        )}
+        <Checkbox
+          id={`category-${category.id}`}
+          checked={isCategorySelected(category)}
+          onCheckedChange={(checked) =>
+            handleCategoryChange(category.id, checked as boolean)
+          }
+        />
+        <Label
+          htmlFor={`category-${category.id}`}
+          className={`text-sm cursor-pointer flex-1 ${
+            level === 0 ? "font-medium" : "font-normal text-muted-foreground"
+          }`}
+        >
+          {category.name}
+          {category.product_count !== undefined && (
+            <span className="text-muted-foreground ml-1">
+              ({category.product_count})
+            </span>
+          )}
+        </Label>
+      </div>
+
+      {/* Render child categories */}
+      {category.children &&
+        category.children.length > 0 &&
+        expandedCategories.has(category.id) && (
+          <div className="space-y-1">
+            {category.children.map((child: CategoryTreeNode) =>
+              renderCategoryItem(child, level + 1)
+            )}
+          </div>
+        )}
+    </div>
+  );
+
   return (
     <Card>
       <CardHeader className="pb-4">
@@ -142,29 +285,8 @@ export default function ProductsFilters({
               Đang tải...
             </div>
           ) : (
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {categories.map((category) => (
-                <div key={category.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`category-${category.id}`}
-                    checked={filters.categoryId === category.id}
-                    onCheckedChange={(checked) =>
-                      handleCategoryChange(category.id, checked as boolean)
-                    }
-                  />
-                  <Label
-                    htmlFor={`category-${category.id}`}
-                    className="text-sm font-normal cursor-pointer flex-1"
-                  >
-                    {category.name}
-                    {category.product_count !== undefined && (
-                      <span className="text-muted-foreground ml-1">
-                        ({category.product_count})
-                      </span>
-                    )}
-                  </Label>
-                </div>
-              ))}
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {categories.map((category) => renderCategoryItem(category))}
             </div>
           )}
         </div>

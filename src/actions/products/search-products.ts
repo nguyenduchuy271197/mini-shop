@@ -12,6 +12,7 @@ const paginationSchema = z.object({
 
 const searchFiltersSchema = z.object({
   categoryId: z.number().optional(),
+  categoryIds: z.array(z.number()).optional(),
   minPrice: z.number().min(0).optional(),
   maxPrice: z.number().min(0).optional(),
   brand: z.string().optional(),
@@ -73,7 +74,9 @@ export async function searchProducts(data: SearchProductsData): Promise<SearchPr
     searchQuery = searchQuery.or(`name.ilike.%${query}%,description.ilike.%${query}%,brand.ilike.%${query}%`);
 
     // Apply additional filters
-    if (filters.categoryId) {
+    if (filters.categoryIds && filters.categoryIds.length > 0) {
+      searchQuery = searchQuery.in("category_id", filters.categoryIds);
+    } else if (filters.categoryId) {
       searchQuery = searchQuery.eq("category_id", filters.categoryId);
     }
 
@@ -108,7 +111,9 @@ export async function searchProducts(data: SearchProductsData): Promise<SearchPr
       .or(`name.ilike.%${query}%,description.ilike.%${query}%,brand.ilike.%${query}%`);
 
     // Apply same filters to count query
-    if (filters.categoryId) {
+    if (filters.categoryIds && filters.categoryIds.length > 0) {
+      countQuery.in("category_id", filters.categoryIds);
+    } else if (filters.categoryId) {
       countQuery.eq("category_id", filters.categoryId);
     }
     if (filters.minPrice !== undefined) {

@@ -25,9 +25,16 @@ export default function ProductsPage({ searchParams }: ProductsPageProps) {
   const page = parseInt(searchParams.page || "1");
   const limit = parseInt(searchParams.limit || "12");
   const search = searchParams.search || "";
-  const categoryId = searchParams.category
-    ? parseInt(searchParams.category)
-    : undefined;
+
+  // Handle both single category ID and comma-separated category IDs
+  const categoryIds = searchParams.category
+    ? searchParams.category
+        .split(",")
+        .map((id) => parseInt(id.trim()))
+        .filter((id) => !isNaN(id))
+    : [];
+  const categoryId = categoryIds.length > 0 ? categoryIds[0] : undefined; // For display purposes
+
   const minPrice = searchParams.minPrice
     ? parseFloat(searchParams.minPrice)
     : undefined;
@@ -41,6 +48,7 @@ export default function ProductsPage({ searchParams }: ProductsPageProps) {
 
   const filters = {
     categoryId,
+    categoryIds: categoryIds.length > 0 ? categoryIds : undefined, // Pass array for filtering
     minPrice,
     maxPrice,
     brand: brand || undefined,
@@ -75,7 +83,16 @@ export default function ProductsPage({ searchParams }: ProductsPageProps) {
           {/* Sidebar Filters */}
           <div className="lg:col-span-1">
             <Suspense fallback={<FiltersLoading />}>
-              <ProductsFilters filters={filters} brand={brand} />
+              <ProductsFilters
+                filters={{
+                  categoryId,
+                  minPrice,
+                  maxPrice,
+                  brand,
+                  inStock,
+                }}
+                brand={brand}
+              />
             </Suspense>
           </div>
 

@@ -94,11 +94,16 @@ export type PaginationParams = {
 // Product filters
 export type ProductFilters = {
   category_id?: number;
+  categoryId?: number; // For compatibility with hooks
+  categoryIds?: number[]; // For hierarchical category filtering
   min_price?: number;
+  minPrice?: number; // For compatibility with hooks
   max_price?: number;
+  maxPrice?: number; // For compatibility with hooks
   brand?: string;
   tags?: string[];
   is_featured?: boolean;
+  inStock?: boolean; // For compatibility with hooks
   in_stock?: boolean;
 };
 

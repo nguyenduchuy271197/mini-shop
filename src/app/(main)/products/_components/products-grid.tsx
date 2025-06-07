@@ -11,6 +11,7 @@ interface ProductsGridProps {
   searchQuery: string;
   filters: {
     categoryId?: number;
+    categoryIds?: number[]; // Array of category IDs for hierarchical filtering
     minPrice?: number;
     maxPrice?: number;
     brand?: string;
@@ -34,11 +35,19 @@ export default function ProductsGrid({
 }: ProductsGridProps) {
   const isSearching = searchQuery.trim().length > 0;
 
+  // Use categoryIds if available, otherwise fall back to categoryId
+  const categoryFilter =
+    filters.categoryIds && filters.categoryIds.length > 0
+      ? { categoryIds: filters.categoryIds }
+      : filters.categoryId
+      ? { categoryId: filters.categoryId }
+      : {};
+
   // Use search hook if there's a search query, otherwise use regular products hook
   const searchResult = useSearchProducts({
     query: searchQuery,
     filters: {
-      categoryId: filters.categoryId,
+      ...categoryFilter,
       minPrice: filters.minPrice,
       maxPrice: filters.maxPrice,
       brand: filters.brand,
@@ -47,7 +56,17 @@ export default function ProductsGrid({
     pagination,
   });
 
-  const productsResult = useProducts(pagination, filters, sorting);
+  const productsResult = useProducts(
+    pagination,
+    {
+      ...categoryFilter,
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      brand: filters.brand,
+      inStock: filters.inStock,
+    },
+    sorting
+  );
 
   // Choose the appropriate result based on whether we're searching
   const result = isSearching ? searchResult : productsResult;

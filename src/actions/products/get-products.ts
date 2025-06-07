@@ -12,6 +12,7 @@ const paginationSchema = z.object({
 
 const productFiltersSchema = z.object({
   categoryId: z.number().optional(),
+  categoryIds: z.array(z.number()).optional(),
   minPrice: z.number().min(0).optional(),
   maxPrice: z.number().min(0).optional(),
   brand: z.string().optional(),
@@ -82,7 +83,10 @@ export async function getProducts(
       query = query.eq("is_active", validatedFilters.isActive);
     }
 
-    if (validatedFilters.categoryId) {
+    // Handle category filtering - use categoryIds if available, otherwise categoryId
+    if (validatedFilters.categoryIds && validatedFilters.categoryIds.length > 0) {
+      query = query.in("category_id", validatedFilters.categoryIds);
+    } else if (validatedFilters.categoryId) {
       query = query.eq("category_id", validatedFilters.categoryId);
     }
 
@@ -114,16 +118,46 @@ export async function getProducts(
     query = query.order(validatedSort.field, { ascending: validatedSort.order === "asc" });
 
     // Get total count for pagination
-    const { count, error: countError } = await supabase
+    let countQuery = supabase
       .from("products")
-      .select("*", { count: "exact", head: true })
-      .match(Object.fromEntries(
-        Object.entries({
-          is_active: validatedFilters.isActive,
-          category_id: validatedFilters.categoryId,
-          is_featured: validatedFilters.isFeatured,
-        }).filter(([, value]) => value !== undefined)
-      ));
+      .select("*", { count: "exact", head: true });
+
+    // Apply the same filters to count query
+    if (validatedFilters.isActive !== undefined) {
+      countQuery = countQuery.eq("is_active", validatedFilters.isActive);
+    }
+
+    if (validatedFilters.categoryIds && validatedFilters.categoryIds.length > 0) {
+      countQuery = countQuery.in("category_id", validatedFilters.categoryIds);
+    } else if (validatedFilters.categoryId) {
+      countQuery = countQuery.eq("category_id", validatedFilters.categoryId);
+    }
+
+    if (validatedFilters.minPrice !== undefined) {
+      countQuery = countQuery.gte("price", validatedFilters.minPrice);
+    }
+
+    if (validatedFilters.maxPrice !== undefined) {
+      countQuery = countQuery.lte("price", validatedFilters.maxPrice);
+    }
+
+    if (validatedFilters.brand) {
+      countQuery = countQuery.ilike("brand", `%${validatedFilters.brand}%`);
+    }
+
+    if (validatedFilters.tags && validatedFilters.tags.length > 0) {
+      countQuery = countQuery.overlaps("tags", validatedFilters.tags);
+    }
+
+    if (validatedFilters.isFeatured !== undefined) {
+      countQuery = countQuery.eq("is_featured", validatedFilters.isFeatured);
+    }
+
+    if (validatedFilters.inStock) {
+      countQuery = countQuery.gt("stock_quantity", 0);
+    }
+
+    const { count, error: countError } = await countQuery;
 
     if (countError) {
       return {
