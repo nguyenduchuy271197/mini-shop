@@ -57,6 +57,11 @@ const adminMenuItems = [
     icon: BarChart3,
     items: [
       {
+        title: "Dashboard quản trị",
+        href: "/admin/reports",
+        description: "FR31",
+      },
+      {
         title: "Báo cáo doanh thu",
         href: "/admin/reports/revenue",
         description: "FR32",
