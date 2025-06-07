@@ -32,24 +32,6 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* Search Bar */}
-            <div className="max-w-lg mx-auto">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="pl-12 pr-4 py-4 text-lg rounded-full border-2 focus:border-blue-500 bg-white/80 backdrop-blur-sm"
-                />
-                <Button
-                  size="lg"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full"
-                  asChild
-                >
-                  <Link href="/products">Tìm kiếm</Link>
-                </Button>
-              </div>
-            </div>
-
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
