@@ -51,6 +51,8 @@ export function RevenueAnalytics({ onExport }: RevenueAnalyticsProps) {
     dateRange,
   });
 
+  console.log(error);
+
   const handleRefresh = async () => {
     try {
       await refetch();

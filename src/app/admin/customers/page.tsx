@@ -46,11 +46,7 @@ export default function CustomersPage() {
     dateRange: dateRanges.thisMonth,
   });
 
-  const {
-    data: lastMonthAnalytics,
-    isLoading: isLoadingLastMonth,
-    refetch: refetchLastMonth,
-  } = useCustomerAnalytics({
+  const { refetch: refetchLastMonth } = useCustomerAnalytics({
     dateRange: dateRanges.lastMonth,
   });
 

@@ -73,13 +73,25 @@ export async function getCustomerDetails(data: GetCustomerDetailsData): Promise<
       };
     }
 
-    // 4. Get customer profile with role
+    // 4. First, verify customer exists in user_roles
+    const { data: customerRole, error: roleCheckError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", customerId)
+      .eq("role", "customer")
+      .single();
+
+    if (roleCheckError || !customerRole) {
+      return {
+        success: false,
+        error: "Không tìm thấy khách hàng hoặc người dùng không phải là khách hàng",
+      };
+    }
+
+    // 5. Get customer profile
     const { data: customerProfile, error: profileError } = await supabase
       .from("profiles")
-      .select(`
-        *,
-        user_roles!inner(role)
-      `)
+      .select("*")
       .eq("id", customerId)
       .single();
 
@@ -103,7 +115,7 @@ export async function getCustomerDetails(data: GetCustomerDetailsData): Promise<
       };
     }
 
-    // 5. Get order statistics
+    // 6. Get order statistics
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
       .select("id, total_amount, created_at, status")
@@ -126,7 +138,7 @@ export async function getCustomerDetails(data: GetCustomerDetailsData): Promise<
       first_order_date: ordersList.length > 0 ? ordersList[ordersList.length - 1].created_at : undefined,
     };
 
-    // 6. Get recent orders (last 5 orders)
+    // 7. Get recent orders (last 5 orders)
     const { data: recentOrders, error: recentOrdersError } = await supabase
       .from("orders")
       .select("*")
@@ -138,7 +150,7 @@ export async function getCustomerDetails(data: GetCustomerDetailsData): Promise<
       console.error("Error fetching recent orders:", recentOrdersError);
     }
 
-    // 7. Get customer addresses
+    // 8. Get customer addresses
     const { data: addresses, error: addressesError } = await supabase
       .from("addresses")
       .select("*")
@@ -149,7 +161,7 @@ export async function getCustomerDetails(data: GetCustomerDetailsData): Promise<
       console.error("Error fetching addresses:", addressesError);
     }
 
-    // 8. Get activity summary
+    // 9. Get activity summary
     
     // Cart items count
     const { count: cartItemsCount, error: cartError } = await supabase
@@ -187,7 +199,7 @@ export async function getCustomerDetails(data: GetCustomerDetailsData): Promise<
       reviews_count: reviewsCount || 0,
     };
 
-    // 9. Combine all data
+    // 10. Combine all data
     const customerDetails: CustomerDetails = {
       ...customerProfile,
       user_role: "customer",
