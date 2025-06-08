@@ -24,11 +24,7 @@ export async function AdminHeader() {
         </div>
 
         {/* Page title - will be updated by individual pages */}
-        <div className="hidden lg:block">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Bảng điều khiển
-          </h1>
-        </div>
+        <div className="hidden lg:block"></div>
 
         {/* Right side actions */}
         <div className="flex items-center space-x-4">
