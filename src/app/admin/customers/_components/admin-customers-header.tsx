@@ -1,4 +1,4 @@
-import { Users, Download, UserPlus, RotateCcw } from "lucide-react";
+import { Users, Download, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AdminCustomersHeaderProps {
@@ -58,11 +58,6 @@ export function AdminCustomersHeader({
         >
           <Download className="h-4 w-4" />
           Xuất CSV
-        </Button>
-
-        <Button size="sm" className="flex items-center gap-2">
-          <UserPlus className="h-4 w-4" />
-          Thêm khách hàng
         </Button>
       </div>
     </div>

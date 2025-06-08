@@ -84,7 +84,29 @@ export async function exportCustomers(data?: ExportCustomersData): Promise<Expor
       };
     }
 
-    // 4. Build base query cho profiles
+    // 4. First, get customer user IDs from user_roles table
+    const { data: customerRoles, error: rolesError } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "customer");
+
+    if (rolesError) {
+      return {
+        success: false,
+        error: rolesError.message || "Không thể lấy danh sách customer roles",
+      };
+    }
+
+    if (!customerRoles || customerRoles.length === 0) {
+      return {
+        success: false,
+        error: "Không tìm thấy khách hàng để xuất",
+      };
+    }
+
+    const customerIds = customerRoles.map(role => role.user_id);
+
+    // 5. Build query for profiles with customer IDs
     let profileQuery = supabase
       .from("profiles")
       .select(`
@@ -94,12 +116,11 @@ export async function exportCustomers(data?: ExportCustomersData): Promise<Expor
         phone,
         gender,
         date_of_birth,
-        created_at,
-        user_roles!inner(role)
+        created_at
       `)
-      .eq("user_roles.role", "customer");
+      .in("id", customerIds);
 
-    // 5. Apply filters
+    // 6. Apply filters
     if (filters) {
       // Text search in name and email
       if (filters.search) {
@@ -123,7 +144,7 @@ export async function exportCustomers(data?: ExportCustomersData): Promise<Expor
       }
     }
 
-    // 6. Get all customers (no pagination for export)
+    // 7. Get all customers (no pagination for export)
     const { data: customers, error: customersError } = await profileQuery
       .order("created_at", { ascending: false });
 
@@ -141,8 +162,8 @@ export async function exportCustomers(data?: ExportCustomersData): Promise<Expor
       };
     }
 
-    // 7. Enrich customer data
-    const customerIds = customers.map(customer => customer.id);
+    // 8. Enrich customer data
+    const filteredCustomerIds = customers.map(customer => customer.id);
     let exportData: CustomerExportData[] = customers.map(customer => ({
       id: customer.id,
       email: customer.email,
@@ -153,12 +174,12 @@ export async function exportCustomers(data?: ExportCustomersData): Promise<Expor
       created_at: customer.created_at,
     }));
 
-    // 8. Get order statistics if requested
-    if (filters?.includeOrderStats && customerIds.length > 0) {
+    // 9. Get order statistics if requested
+    if (filters?.includeOrderStats && filteredCustomerIds.length > 0) {
       const { data: orderStats, error: orderStatsError } = await supabase
         .from("orders")
         .select("user_id, total_amount, created_at")
-        .in("user_id", customerIds)
+        .in("user_id", filteredCustomerIds)
         .neq("status", "cancelled");
 
       if (!orderStatsError && orderStats) {
@@ -202,12 +223,12 @@ export async function exportCustomers(data?: ExportCustomersData): Promise<Expor
       }
     }
 
-    // 9. Get addresses if requested
-    if (filters?.includeAddresses && customerIds.length > 0) {
+    // 10. Get addresses if requested
+    if (filters?.includeAddresses && filteredCustomerIds.length > 0) {
       const { data: addresses, error: addressesError } = await supabase
         .from("addresses")
         .select("user_id, type, address_line_1, city, state, is_default")
-        .in("user_id", customerIds);
+        .in("user_id", filteredCustomerIds);
 
       if (!addressesError && addresses) {
         // Group addresses by user and type
@@ -238,7 +259,7 @@ export async function exportCustomers(data?: ExportCustomersData): Promise<Expor
       }
     }
 
-    // 10. Format data based on requested format
+    // 11. Format data based on requested format
     let formattedData: string;
     let filename: string;
     const timestamp = new Date().toISOString().split('T')[0];

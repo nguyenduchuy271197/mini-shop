@@ -54,7 +54,7 @@ async function getAdminCustomers(params: UseAdminCustomersParams): Promise<Admin
 
 export function useAdminCustomers(params: UseAdminCustomersParams) {
   return useQuery({
-    queryKey: QUERY_KEYS.admin.users.customers(),
+    queryKey: [...QUERY_KEYS.admin.users.customers(), params],
     queryFn: () => getAdminCustomers(params),
     staleTime: 30 * 1000, // 30 seconds
     retry: 1,

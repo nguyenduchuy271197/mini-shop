@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { AdminCustomersHeader } from "./_components/admin-customers-header";
 import { AdminCustomersStats } from "./_components/admin-customers-stats";
 import { AdminCustomersTable } from "./_components/admin-customers-table";
 import { AdminCustomerDetailDialog } from "./_components/admin-customer-detail-dialog";
 import { useAdminCustomers, useExportCustomers } from "@/hooks/admin/users";
+import { useCustomerAnalytics } from "@/hooks/admin/reports";
 import { useToast } from "@/hooks/use-toast";
 import { CustomerMetrics } from "./_lib/utils";
 
@@ -16,15 +17,42 @@ export default function CustomersPage() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  // Mock metrics - trong thực tế sẽ fetch từ API
-  const mockMetrics: CustomerMetrics = {
-    totalCustomers: 1250,
-    newCustomersThisMonth: 85,
-    activeCustomers: 890,
-    vipCustomers: 45,
-    averageOrderValue: 750000,
-    customerRetentionRate: 68.5,
-  };
+  // Calculate date ranges for analytics
+  const dateRanges = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    return {
+      thisMonth: {
+        startDate: startOfMonth.toISOString(),
+        endDate: endOfMonth.toISOString(),
+      },
+      lastMonth: {
+        startDate: startOfLastMonth.toISOString(),
+        endDate: endOfLastMonth.toISOString(),
+      },
+    };
+  }, []);
+
+  // Get real analytics data
+  const {
+    data: thisMonthAnalytics,
+    isLoading: isLoadingThisMonth,
+    refetch: refetchThisMonth,
+  } = useCustomerAnalytics({
+    dateRange: dateRanges.thisMonth,
+  });
+
+  const {
+    data: lastMonthAnalytics,
+    isLoading: isLoadingLastMonth,
+    refetch: refetchLastMonth,
+  } = useCustomerAnalytics({
+    dateRange: dateRanges.lastMonth,
+  });
 
   // Lấy dữ liệu khách hàng để đếm tổng số
   const {
@@ -32,7 +60,7 @@ export default function CustomersPage() {
     isLoading: isLoadingCustomers,
     refetch: refetchCustomers,
   } = useAdminCustomers({
-    pagination: { page: 1, limit: 1 },
+    pagination: { page: 1, limit: 50 }, // Increase to get better total count
     filters: {},
   });
 
@@ -53,13 +81,44 @@ export default function CustomersPage() {
       },
     });
 
+  // Calculate real metrics from analytics data
+  const metrics: CustomerMetrics = useMemo(() => {
+    const totalCustomers = customersData?.pagination?.total || 0;
+    const newCustomersThisMonth =
+      thisMonthAnalytics?.analytics?.newCustomers || 0;
+    const activeCustomers =
+      thisMonthAnalytics?.analytics?.customerSegments?.activeCustomers || 0;
+
+    // Use VIP customers from analytics
+    const vipCustomers =
+      thisMonthAnalytics?.analytics?.customerSegments?.vipCustomers || 0;
+
+    const averageOrderValue =
+      thisMonthAnalytics?.analytics?.averageOrderValue || 0;
+
+    // Use retention rate from analytics
+    const customerRetentionRate =
+      thisMonthAnalytics?.analytics?.customerRetentionRate || 0;
+
+    return {
+      totalCustomers,
+      newCustomersThisMonth,
+      activeCustomers,
+      vipCustomers,
+      averageOrderValue,
+      customerRetentionRate,
+    };
+  }, [customersData, thisMonthAnalytics]);
+
   const handleRefresh = useCallback(() => {
     refetchCustomers();
+    refetchThisMonth();
+    refetchLastMonth();
     toast({
       title: "Đã làm mới",
       description: "Dữ liệu khách hàng đã được cập nhật",
     });
-  }, [refetchCustomers, toast]);
+  }, [refetchCustomers, refetchThisMonth, refetchLastMonth, toast]);
 
   const handleExport = useCallback(async () => {
     try {
@@ -84,8 +143,7 @@ export default function CustomersPage() {
     setTimeout(() => setSelectedCustomerId(null), 300);
   }, []);
 
-  const totalCustomers =
-    customersData?.pagination?.total || mockMetrics.totalCustomers;
+  const totalCustomers = metrics.totalCustomers;
 
   return (
     <div className="space-y-6 p-6">
@@ -99,8 +157,8 @@ export default function CustomersPage() {
 
       {/* Stats */}
       <AdminCustomersStats
-        metrics={mockMetrics}
-        isLoading={isLoadingCustomers}
+        metrics={metrics}
+        isLoading={isLoadingCustomers || isLoadingThisMonth}
       />
 
       {/* Table */}

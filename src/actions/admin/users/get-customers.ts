@@ -81,16 +81,43 @@ export async function getCustomers(data: GetCustomersData): Promise<GetCustomers
       };
     }
 
-    // 4. Build base query cho profiles
+    // 4. First get all customer user IDs from user_roles
+    const { data: customerRoles, error: customerRolesError } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "customer");
+
+    if (customerRolesError) {
+      return {
+        success: false,
+        error: customerRolesError.message || "Không thể lấy danh sách vai trò khách hàng",
+      };
+    }
+
+    const customerIds = customerRoles?.map(role => role.user_id) || [];
+
+    if (customerIds.length === 0) {
+      return {
+        success: true,
+        customers: [],
+        pagination: {
+          page: pagination.page,
+          limit: pagination.limit,
+          total: 0,
+          totalPages: 0,
+        },
+      };
+    }
+
+    // 5. Build query for profiles with customer IDs
     let profileQuery = supabase
       .from("profiles")
-      .select(`
-        *,
-        user_roles!inner(role)
-      `)
-      .eq("user_roles.role", "customer");
+      .select("*")
+      .in("id", customerIds);
 
-    // 5. Apply filters
+    
+
+    // 6. Apply filters to profileQuery for both data and count
     if (filters) {
       // Text search in name and email
       if (filters.search) {
@@ -114,11 +141,36 @@ export async function getCustomers(data: GetCustomersData): Promise<GetCustomers
       }
     }
 
-    // 6. Get total count for pagination
-    const { count: totalCount, error: countError } = await supabase
+    // 7. Get total count for pagination (with same filters)
+    let countQuery = supabase
       .from("profiles")
       .select("*", { count: "exact", head: true })
-      .eq("user_roles.role", "customer");
+      .in("id", customerIds);
+    
+    // Apply same filters to count query
+    if (filters) {
+      if (filters.search) {
+        countQuery = countQuery.or(
+          `full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`
+        );
+      }
+
+      if (filters.gender) {
+        countQuery = countQuery.eq("gender", filters.gender);
+      }
+
+      if (filters.registeredAfter) {
+        countQuery = countQuery.gte("created_at", filters.registeredAfter);
+      }
+
+      if (filters.registeredBefore) {
+        countQuery = countQuery.lte("created_at", filters.registeredBefore);
+      }
+    }
+
+    const { count: totalCount, error: countError } = await countQuery;
+
+
 
     if (countError) {
       return {
@@ -134,7 +186,7 @@ export async function getCustomers(data: GetCustomersData): Promise<GetCustomers
       };
     }
 
-    // 7. Get customers with pagination
+    // 8. Get customers with pagination
     const offset = (pagination.page - 1) * pagination.limit;
 
     const { data: customers, error: customersError } = await profileQuery
@@ -155,8 +207,8 @@ export async function getCustomers(data: GetCustomersData): Promise<GetCustomers
       };
     }
 
-    // 8. Enrich customer data with order statistics
-    const customerIds = customers.map(customer => customer.id);
+    // 9. Enrich customer data with order statistics
+    const customerUserIds = customers.map(customer => customer.id);
     let enrichedCustomers: CustomerInfo[] = customers.map(customer => ({
       ...customer,
       user_role: "customer" as const,
@@ -165,12 +217,12 @@ export async function getCustomers(data: GetCustomersData): Promise<GetCustomers
       last_order_date: undefined,
     }));
 
-    if (customerIds.length > 0) {
+    if (customerUserIds.length > 0) {
       // Get order statistics for each customer
       const { data: orderStats, error: orderStatsError } = await supabase
         .from("orders")
         .select("user_id, total_amount, created_at")
-        .in("user_id", customerIds)
+        .in("user_id", customerUserIds)
         .neq("status", "cancelled");
 
       if (!orderStatsError && orderStats) {
@@ -212,7 +264,7 @@ export async function getCustomers(data: GetCustomersData): Promise<GetCustomers
       }
     }
 
-    // 9. Calculate pagination info
+    // 10. Calculate pagination info
     const totalPages = Math.ceil(totalCount / pagination.limit);
 
     return {
