@@ -5,7 +5,7 @@ import { useCategories } from "@/hooks/categories";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Folder, Package, AlertCircle } from "lucide-react";
+import { Folder, AlertCircle } from "lucide-react";
 
 export default function CategoriesGrid() {
   const { data, isLoading, error } = useCategories({
