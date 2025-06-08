@@ -18,10 +18,6 @@ export function AdminOrdersHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Badge variant="outline" className="text-green-600 border-green-600">
-          FR028 Implemented
-        </Badge>
-
         <Button variant="outline" size="sm">
           <RotateCcw className="h-4 w-4 mr-2" />
           Làm mới
