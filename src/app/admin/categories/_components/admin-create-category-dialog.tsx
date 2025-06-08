@@ -25,10 +25,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCreateCategory } from "@/hooks/admin/categories";
 import { useUploadFile } from "@/hooks/admin/files";
-import { Loader2, X, Upload, Link2 } from "lucide-react";
+import { Loader2, X, Upload } from "lucide-react";
 
 const createCategorySchema = z.object({
   name: z
@@ -37,7 +36,7 @@ const createCategorySchema = z.object({
     .max(100, "Tên danh mục tối đa 100 ký tự"),
   slug: z.string().min(1, "Slug là bắt buộc").max(100, "Slug tối đa 100 ký tự"),
   description: z.string().optional(),
-  imageUrl: z.string().url("URL ảnh không hợp lệ").optional().or(z.literal("")),
+  imageUrl: z.string().optional(),
   sortOrder: z
     .number()
     .min(0, "Thứ tự sắp xếp phải lớn hơn hoặc bằng 0")
@@ -55,7 +54,6 @@ export function AdminCreateCategoryDialog({
   children,
 }: AdminCreateCategoryDialogProps) {
   const [open, setOpen] = useState(false);
-  const [imageMethod, setImageMethod] = useState<"url" | "upload">("url");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<CreateCategoryFormData>({
@@ -74,7 +72,6 @@ export function AdminCreateCategoryDialog({
     onSuccess: () => {
       setOpen(false);
       form.reset();
-      setImageMethod("url");
     },
   });
 
@@ -214,66 +211,45 @@ export function AdminCreateCategoryDialog({
               )}
             />
 
-            {/* Image Section */}
+            {/* Image Upload */}
             <FormField
               control={form.control}
               name="imageUrl"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Ảnh danh mục</FormLabel>
                   <FormControl>
                     <div className="space-y-4">
-                      <Tabs
-                        value={imageMethod}
-                        onValueChange={(value) =>
-                          setImageMethod(value as "url" | "upload")
-                        }
-                      >
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger
-                            value="url"
-                            className="flex items-center gap-2"
-                          >
-                            <Link2 className="h-4 w-4" />
-                            URL
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="upload"
-                            className="flex items-center gap-2"
-                          >
-                            <Upload className="h-4 w-4" />
-                            Upload
-                          </TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="url">
-                          <Input
-                            placeholder="https://example.com/image.jpg"
-                            {...field}
-                          />
-                        </TabsContent>
-
-                        <TabsContent value="upload">
+                      <div className="flex items-center justify-center w-full">
+                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-8 h-8 mb-2 text-gray-500" />
+                            <p className="mb-2 text-sm text-gray-500">
+                              <span className="font-semibold">
+                                Click để upload
+                              </span>{" "}
+                              hoặc kéo thả file
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              PNG, JPG, GIF, WebP (Max 1MB)
+                            </p>
+                          </div>
                           <input
                             ref={fileInputRef}
                             type="file"
                             accept="image/*"
                             onChange={handleFileUpload}
-                            className="block w-full text-sm text-slate-500
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-full file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-violet-50 file:text-violet-700
-                              hover:file:bg-violet-100"
+                            className="hidden"
                           />
-                          {uploadFileMutation.isPending && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Đang upload...
-                            </div>
-                          )}
-                        </TabsContent>
-                      </Tabs>
+                        </label>
+                      </div>
+
+                      {uploadFileMutation.isPending && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Đang upload...
+                        </div>
+                      )}
 
                       {/* Image Preview */}
                       {hasValidImage && (
