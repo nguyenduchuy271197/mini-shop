@@ -73,11 +73,6 @@ const adminMenuItems = [
     icon: Megaphone,
     items: [
       { title: "Khuyến mãi", href: "/admin/promotions", description: "FR34" },
-      {
-        title: "Banner/Quảng cáo",
-        href: "/admin/banners",
-        description: "FR38",
-      },
     ],
   },
   {
@@ -117,7 +112,7 @@ export function AdminSidebar({ className = "" }: AdminSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="mt-6">
+      <nav className="py-6">
         <div className="px-4 space-y-2">
           {adminMenuItems.map((item, index) => (
             <AdminMenuItem key={index} item={item} />
