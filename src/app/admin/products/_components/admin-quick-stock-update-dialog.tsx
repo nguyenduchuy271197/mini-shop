@@ -37,11 +37,7 @@ import { Loader2 } from "lucide-react";
 const quickStockUpdateSchema = z.object({
   quantity: z.number().int().min(0, "Số lượng không thể âm"),
   operation: z.enum(["set", "add", "subtract"]),
-  reason: z
-    .string()
-    .min(3, "Lý do phải có ít nhất 3 ký tự")
-    .max(500, "Lý do tối đa 500 ký tự")
-    .optional(),
+  reason: z.string().max(500, "Lý do tối đa 500 ký tự").optional(),
 });
 
 type QuickStockUpdateFormData = z.infer<typeof quickStockUpdateSchema>;

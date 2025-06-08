@@ -9,7 +9,7 @@ const updateStockSchema = z.object({
   productId: z.number().positive("ID sản phẩm không hợp lệ"),
   quantity: z.number().int().min(0, "Số lượng tồn kho không thể âm"),
   operation: z.enum(["set", "add", "subtract"]).optional().default("set"),
-  reason: z.string().min(3, "Lý do phải có ít nhất 3 ký tự").max(500, "Lý do tối đa 500 ký tự").optional(),
+  reason: z.string().max(500, "Lý do tối đa 500 ký tự").optional(),
 });
 
 type UpdateStockData = z.infer<typeof updateStockSchema>;
