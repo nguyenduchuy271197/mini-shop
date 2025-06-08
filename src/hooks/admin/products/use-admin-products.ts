@@ -160,8 +160,8 @@ async function getAdminProducts(params: UseAdminProductsParams = {}): Promise<Ad
 }
 
 export function useAdminProducts(params: UseAdminProductsParams = {}) {
-  // Create a properly typed params object for the query key
-  const queryParams: ProductFilters & PaginationParams = {
+  // Create a properly typed params object for the query key that includes admin-specific filters
+  const queryParams = {
     page: params.page ?? 1,
     limit: params.limit ?? 20,
     category_id: params.category_id,
@@ -171,6 +171,10 @@ export function useAdminProducts(params: UseAdminProductsParams = {}) {
     tags: params.tags,
     is_featured: params.is_featured,
     in_stock: params.in_stock,
+    searchTerm: params.searchTerm,
+    lowStock: params.lowStock,
+    outOfStock: params.outOfStock,
+    isActive: params.isActive,
   };
 
   return useQuery({

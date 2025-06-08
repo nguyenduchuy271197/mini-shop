@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAdminProducts } from "@/hooks/admin/products";
 import { AdminProductsTableRow } from "./admin-products-table-row";
 import { AdminProductsTableSkeleton } from "./admin-products-table-skeleton";
@@ -27,15 +27,39 @@ export function AdminProductsTable({ filters }: AdminProductsTableProps) {
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const limit = 10;
 
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [
+    filters.searchTerm,
+    filters.categoryId,
+    filters.isActive,
+    filters.isFeatured,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.stockStatus,
+  ]);
+
+  // Convert filters to match useAdminProducts expected parameters
+  const adminFilters = {
+    searchTerm: filters.searchTerm,
+    category_id: filters.categoryId,
+    isActive: filters.isActive,
+    is_featured: filters.isFeatured,
+    min_price: filters.minPrice,
+    max_price: filters.maxPrice,
+    lowStock: filters.stockStatus === "low_stock",
+    outOfStock: filters.stockStatus === "out_of_stock",
+    in_stock: filters.stockStatus === "in_stock" ? true : undefined,
+    page,
+    limit,
+  };
+
   const {
     data: productsData,
     isLoading,
     error,
-  } = useAdminProducts({
-    ...filters,
-    page,
-    limit,
-  });
+  } = useAdminProducts(adminFilters);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
