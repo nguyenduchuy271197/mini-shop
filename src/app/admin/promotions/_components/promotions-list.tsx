@@ -54,22 +54,20 @@ import {
   Copy,
   Eye,
 } from "lucide-react";
+import { AdminCreateCouponDialog } from "./admin-create-coupon-dialog";
+import { AdminEditCouponDialog } from "./admin-edit-coupon-dialog";
+import { AdminCouponDetailDialog } from "./admin-coupon-detail-dialog";
+import { Coupon } from "@/types/custom.types";
 
-interface PromotionsListProps {
-  onCreateCoupon: () => void;
-  onEditCoupon: (couponId: number) => void;
-  onViewCoupon: (couponId: number) => void;
-}
+interface PromotionsListProps {}
 
-export function PromotionsList({
-  onCreateCoupon,
-  onEditCoupon,
-  onViewCoupon,
-}: PromotionsListProps) {
+export function PromotionsList({}: PromotionsListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCouponId, setSelectedCouponId] = useState<number | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
   const { data, isLoading, error } = useAdminCoupons({
     pagination: { page: 1, limit: 50 },
@@ -81,6 +79,11 @@ export function PromotionsList({
       setSelectedCouponId(null);
     },
   });
+
+  const handleEditCoupon = (coupon: Coupon) => {
+    setSelectedCoupon(coupon);
+    setEditDialogOpen(true);
+  };
 
   const handleDeleteCoupon = (couponId: number) => {
     setSelectedCouponId(couponId);
@@ -133,10 +136,12 @@ export function PromotionsList({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Danh Sách Khuyến Mãi</CardTitle>
-            <Button onClick={onCreateCoupon}>
-              <Plus className="h-4 w-4 mr-2" />
-              Tạo Mã Giảm Giá
-            </Button>
+            <AdminCreateCouponDialog>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Tạo Mã Giảm Giá
+              </Button>
+            </AdminCreateCouponDialog>
           </div>
         </CardHeader>
         <CardContent>
@@ -234,14 +239,16 @@ export function PromotionsList({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <AdminCouponDetailDialog coupon={coupon}>
+                              <DropdownMenuItem
+                                onSelect={(e) => e.preventDefault()}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Xem chi tiết
+                              </DropdownMenuItem>
+                            </AdminCouponDetailDialog>
                             <DropdownMenuItem
-                              onClick={() => onViewCoupon(coupon.id)}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              Xem chi tiết
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => onEditCoupon(coupon.id)}
+                              onClick={() => handleEditCoupon(coupon)}
                             >
                               <Edit className="h-4 w-4 mr-2" />
                               Chỉnh sửa
@@ -271,6 +278,15 @@ export function PromotionsList({
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Coupon Dialog */}
+      {selectedCoupon && (
+        <AdminEditCouponDialog
+          coupon={selectedCoupon}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

@@ -146,6 +146,14 @@ export function CouponForm({
       return;
     }
 
+    // Convert datetime-local format to ISO string for backend validation
+    const convertToISOString = (datetimeLocal?: string) => {
+      if (!datetimeLocal) return undefined;
+      // datetime-local format: YYYY-MM-DDTHH:mm
+      // Convert to ISO string by adding seconds and timezone
+      return new Date(datetimeLocal).toISOString();
+    };
+
     const submitData = {
       code: formData.code,
       name: formData.name,
@@ -154,8 +162,8 @@ export function CouponForm({
       minimum_amount: formData.minimum_amount,
       maximum_discount: formData.maximum_discount,
       usage_limit: formData.usage_limit,
-      starts_at: formData.starts_at || undefined,
-      expires_at: formData.expires_at || undefined,
+      starts_at: convertToISOString(formData.starts_at),
+      expires_at: convertToISOString(formData.expires_at),
     };
 
     if (mode === "create") {

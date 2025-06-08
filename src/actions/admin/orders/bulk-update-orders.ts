@@ -83,6 +83,7 @@ export async function bulkUpdateOrderStatus(data: BulkUpdateOrdersData): Promise
       .select("*")
       .in("id", orderIds);
 
+
     if (fetchError) {
       return {
         success: false,
@@ -122,6 +123,8 @@ export async function bulkUpdateOrderStatus(data: BulkUpdateOrdersData): Promise
       ...order,
       customer: order.user_id ? customerData.get(order.user_id) || null : null,
     }));
+
+
 
     // 5. Validate status transitions and business rules
     const validationResults = typedExistingOrders.map(order => {
