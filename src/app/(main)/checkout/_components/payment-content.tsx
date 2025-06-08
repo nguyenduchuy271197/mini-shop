@@ -141,7 +141,7 @@ export default function PaymentContent({
             Phương thức thanh toán không hợp lệ
           </h3>
           <Button asChild>
-            <Link href="/orders">Quay lại đơn hàng</Link>
+            <Link href="/dashboard/orders">Quay lại đơn hàng</Link>
           </Button>
         </CardContent>
       </Card>
@@ -342,7 +342,7 @@ export default function PaymentContent({
       {/* Back Button */}
       <div className="text-center">
         <Button variant="ghost" asChild>
-          <Link href="/orders" className="flex items-center">
+          <Link href="/dashboard/orders" className="flex items-center">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Quay lại danh sách đơn hàng
           </Link>

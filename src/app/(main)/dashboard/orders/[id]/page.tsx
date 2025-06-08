@@ -29,7 +29,7 @@ export default async function OrderDetailPage({
   const orderId = parseInt(params.id);
 
   if (isNaN(orderId)) {
-    redirect("/orders");
+    redirect("/dashboard/orders");
   }
 
   return (

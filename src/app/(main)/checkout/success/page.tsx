@@ -27,7 +27,7 @@ export default async function CheckoutSuccessPage({
   const orderNumber = searchParams.order;
 
   if (!orderNumber) {
-    redirect("/orders");
+    redirect("/dashboard/orders");
   }
 
   return (

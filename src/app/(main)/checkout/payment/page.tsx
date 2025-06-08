@@ -27,7 +27,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
   const paymentMethod = searchParams.method;
 
   if (!orderNumber || !paymentMethod) {
-    redirect("/orders");
+    redirect("/dashboard/orders");
   }
 
   return (

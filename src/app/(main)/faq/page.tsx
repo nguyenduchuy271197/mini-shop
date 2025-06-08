@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Search, HelpCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -112,7 +111,6 @@ const faqCategories = [
 
 export default function FAQPage() {
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const toggleExpanded = (questionId: number) => {
@@ -125,14 +123,10 @@ export default function FAQPage() {
 
   const filteredQuestions = faqCategories.flatMap((category) =>
     category.questions
-      .filter((q) => {
-        const matchesSearch =
-          !searchTerm ||
-          q.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          q.answer.toLowerCase().includes(searchTerm.toLowerCase());
+      .filter(() => {
         const matchesCategory =
           selectedCategory === "all" || category.id === selectedCategory;
-        return matchesSearch && matchesCategory;
+        return matchesCategory;
       })
       .map((q) => ({
         ...q,
@@ -152,18 +146,8 @@ export default function FAQPage() {
         </p>
       </div>
 
-      {/* Search and Filter */}
-      <div className="mb-8 space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Tìm kiếm câu hỏi..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
+      {/* Category Filter */}
+      <div className="mb-8">
         <div className="flex flex-wrap gap-2">
           <Button
             variant={selectedCategory === "all" ? "default" : "outline"}
@@ -191,7 +175,7 @@ export default function FAQPage() {
           <Card>
             <CardContent className="text-center py-12">
               <p className="text-muted-foreground">
-                Không tìm thấy câu hỏi nào phù hợp với từ khóa tìm kiếm.
+                Không có câu hỏi nào trong danh mục này.
               </p>
             </CardContent>
           </Card>

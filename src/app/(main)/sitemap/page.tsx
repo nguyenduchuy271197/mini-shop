@@ -50,7 +50,7 @@ export default function SitemapPage() {
       links: [
         { title: "Giỏ hàng", href: "/cart" },
         { title: "Thanh toán", href: "/checkout" },
-        { title: "Lịch sử đơn hàng", href: "/orders" },
+        { title: "Lịch sử đơn hàng", href: "/dashboard/orders" },
         { title: "Theo dõi đơn hàng", href: "/orders/track" },
         { title: "Yêu thích", href: "/dashboard/wishlist" },
       ],

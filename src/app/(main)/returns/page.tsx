@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 export default function ReturnsPage() {
@@ -252,7 +251,6 @@ export default function ReturnsPage() {
               <br />
               123 Đường ABC, Quận 1, TP.HCM
             </div>
-            <Button className="w-full">Yêu cầu đổi trả ngay</Button>
           </CardContent>
         </Card>
       </div>

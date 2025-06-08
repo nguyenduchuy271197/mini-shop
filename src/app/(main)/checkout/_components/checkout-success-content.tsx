@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Package, Eye, Home, ShoppingBag } from "lucide-react";
-import { useEffect, useState } from "react";
 
 interface CheckoutSuccessContentProps {
   orderNumber: string;
@@ -14,24 +13,6 @@ interface CheckoutSuccessContentProps {
 export default function CheckoutSuccessContent({
   orderNumber,
 }: CheckoutSuccessContentProps) {
-  const [countdown, setCountdown] = useState(10);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          // Auto redirect to orders page after countdown
-          window.location.href = "/orders";
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   return (
     <div className="text-center space-y-8">
       {/* Success Icon */}
@@ -115,7 +96,7 @@ export default function CheckoutSuccessContent({
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Button asChild size="lg">
-          <Link href="/orders" className="flex items-center">
+          <Link href="/dashboard/orders" className="flex items-center">
             <Eye className="w-5 h-5 mr-2" />
             Xem đơn hàng
           </Link>
@@ -134,11 +115,6 @@ export default function CheckoutSuccessContent({
             Về trang chủ
           </Link>
         </Button>
-      </div>
-
-      {/* Auto Redirect Notice */}
-      <div className="text-sm text-gray-500">
-        Tự động chuyển đến trang đơn hàng sau {countdown} giây...
       </div>
 
       {/* Contact Information */}

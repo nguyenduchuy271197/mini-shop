@@ -12,7 +12,7 @@ export default function OrderDetailHeader({ orderId }: OrderDetailHeaderProps) {
       {/* Back to Orders */}
       <div className="flex items-center">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/orders" className="flex items-center gap-2">
+          <Link href="/dashboard/orders" className="flex items-center gap-2">
             <ChevronLeft className="h-4 w-4" />
             Quay lại danh sách đơn hàng
           </Link>

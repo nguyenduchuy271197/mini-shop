@@ -173,7 +173,7 @@ export default function OrderDetailContent({
             Đơn hàng không tồn tại hoặc bạn không có quyền truy cập.
           </p>
           <Button asChild>
-            <Link href="/orders">Quay lại danh sách đơn hàng</Link>
+            <Link href="/dashboard/orders">Quay lại danh sách đơn hàng</Link>
           </Button>
         </CardContent>
       </Card>
