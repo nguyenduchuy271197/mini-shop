@@ -1,27 +1,39 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { z } from "zod";
-
-// Validation schema cho upload file
-const uploadFileSchema = z.object({
-  file: z.instanceof(File),
-  bucket: z.string().min(1, "Bucket name là bắt buộc"),
-  path: z.string().min(1, "Đường dẫn file là bắt buộc"),
-});
 
 type UploadFileResult =
   | { success: true; message: string; filePath: string; publicUrl: string }
   | { success: false; error: string };
 
-export async function uploadFile(
-  file: File,
-  bucket: string,
-  path: string
-): Promise<UploadFileResult> {
+export async function uploadFile(formData: FormData): Promise<UploadFileResult> {
   try {
-    // Validate input
-    const validatedData = uploadFileSchema.parse({ file, bucket, path });
+    // Extract data from FormData
+    const file = formData.get('file') as File;
+    const bucket = formData.get('bucket') as string;
+    const path = formData.get('path') as string;
+
+    // Validate required fields
+    if (!file || !(file instanceof File)) {
+      return {
+        success: false,
+        error: "File là bắt buộc và phải là file hợp lệ",
+      };
+    }
+
+    if (!bucket) {
+      return {
+        success: false,
+        error: "Bucket name là bắt buộc",
+      };
+    }
+
+    if (!path) {
+      return {
+        success: false,
+        error: "Đường dẫn file là bắt buộc",
+      };
+    }
 
     const supabase = createClient();
 
@@ -40,7 +52,7 @@ export async function uploadFile(
 
     // Validate file size (tối đa 10MB)
     const maxSize = 10 * 1024 * 1024; // 10MB
-    if (validatedData.file.size > maxSize) {
+    if (file.size > maxSize) {
       return {
         success: false,
         error: "Kích thước file không được vượt quá 10MB",
@@ -60,7 +72,7 @@ export async function uploadFile(
       "text/csv",
     ];
 
-    if (!allowedTypes.includes(validatedData.file.type)) {
+    if (!allowedTypes.includes(file.type)) {
       return {
         success: false,
         error: "Định dạng file không được hỗ trợ",
@@ -68,13 +80,13 @@ export async function uploadFile(
     }
 
     // Tạo unique filename để tránh conflict
-    const fileExtension = validatedData.file.name.split('.').pop() || '';
-    const uniquePath = `${validatedData.path}-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
+    const fileExtension = file.name.split('.').pop() || '';
+    const uniquePath = `${path}-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
 
     // Upload file to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(validatedData.bucket)
-      .upload(uniquePath, validatedData.file, {
+      .from(bucket)
+      .upload(uniquePath, file, {
         cacheControl: "3600",
         upsert: false,
       });
@@ -89,33 +101,27 @@ export async function uploadFile(
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from(validatedData.bucket)
+      .from(bucket)
       .getPublicUrl(uniquePath);
 
     const publicUrl = urlData.publicUrl;
 
     // Log upload action
-    console.log(`User ${user.id} uploaded file to ${validatedData.bucket}/${uniquePath}`, {
-      originalFileName: validatedData.file.name,
-      fileSize: validatedData.file.size,
-      fileType: validatedData.file.type,
+    console.log(`User ${user.id} uploaded file to ${bucket}/${uniquePath}`, {
+      originalFileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
       uploadPath: uploadData.path,
     });
 
     return {
       success: true,
-      message: `Đã upload thành công file "${validatedData.file.name}"`,
+      message: `Đã upload thành công file "${file.name}"`,
       filePath: uploadData.path,
       publicUrl,
     };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: error.errors[0].message,
-      };
-    }
-
+    console.error("Unexpected error in uploadFile:", error);
     return {
       success: false,
       error: "Đã xảy ra lỗi không mong muốn khi upload file",

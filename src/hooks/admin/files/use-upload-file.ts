@@ -28,7 +28,8 @@ function isClientError(error: Error): boolean {
          error.message.includes("Đường dẫn file là bắt buộc") ||
          error.message.includes("chưa được xác thực") ||
          error.message.includes("Kích thước file không được vượt quá") ||
-         error.message.includes("Định dạng file không được hỗ trợ");
+         error.message.includes("Định dạng file không được hỗ trợ") ||
+         error.message.includes("File là bắt buộc");
 }
 
 export function useUploadFile(options: UseUploadFileOptions = {}) {
@@ -37,7 +38,13 @@ export function useUploadFile(options: UseUploadFileOptions = {}) {
 
   return useMutation({
     mutationFn: async (data: UploadFileData) => {
-      const result = await uploadFile(data.file, data.bucket, data.path);
+      // Create FormData to pass to server action
+      const formData = new FormData();
+      formData.append('file', data.file);
+      formData.append('bucket', data.bucket);
+      formData.append('path', data.path);
+
+      const result = await uploadFile(formData);
 
       if (!result.success) {
         throw new Error(result.error);
