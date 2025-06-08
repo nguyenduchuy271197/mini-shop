@@ -76,9 +76,7 @@ export function AdminMobileNav() {
             <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
               <div className="flex items-center space-x-2">
                 <ShoppingBag className="h-8 w-8 text-blue-600" />
-                <span className="text-lg font-bold text-gray-900">
-                  Mini Shop Admin
-                </span>
+                <span className="text-lg font-bold text-gray-900">Admin</span>
               </div>
               <button
                 type="button"

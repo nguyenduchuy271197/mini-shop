@@ -122,9 +122,7 @@ export function AdminSidebar({ className = "" }: AdminSidebarProps) {
       <div className="p-6 border-b">
         <Link href="/admin" className="flex items-center space-x-2">
           <ShoppingBag className="h-8 w-8 text-blue-600" />
-          <span className="text-xl font-bold text-gray-900">
-            Mini Shop Admin
-          </span>
+          <span className="text-xl font-bold text-gray-900">Admin</span>
         </Link>
       </div>
 
