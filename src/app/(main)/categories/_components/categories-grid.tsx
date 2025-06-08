@@ -55,7 +55,7 @@ export default function CategoriesGrid() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {categories.map((category) => (
         <Link key={category.id} href={`/products?category=${category.id}`}>
           <Card className="group hover:shadow-lg transition-all duration-200 h-full">
@@ -76,15 +76,6 @@ export default function CategoriesGrid() {
 
                 {/* Product Count */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Package className="h-4 w-4" />
-                    <span>
-                      {category.product_count !== undefined
-                        ? `${category.product_count} sản phẩm`
-                        : "Đang cập nhật"}
-                    </span>
-                  </div>
-
                   {category.product_count !== undefined &&
                     category.product_count > 0 && (
                       <Badge variant="secondary" className="text-xs">
