@@ -5,7 +5,10 @@ import { getUserProfile, getUserProfileWithRoles } from "@/actions/users/get-pro
 import { QUERY_KEYS } from "@/lib/query-keys";
 
 const isAuthError = (error: Error): boolean => {
-  return error.message.includes("đăng nhập");
+  return error.message.includes("đăng nhập") || 
+         error.message.includes("Người dùng chưa đăng nhập") ||
+         error.message.includes("unauthenticated") ||
+         error.message.includes("unauthorized");
 };
 
 export function useProfile(userId?: string) {
@@ -14,8 +17,12 @@ export function useProfile(userId?: string) {
     queryFn: () => getUserProfile(userId),
     retry: (failureCount: number, error: Error) => {
       if (isAuthError(error)) return false;
-      return failureCount < 3;
+      return failureCount < 2; // Reduce retry attempts for faster response
     },
+    staleTime: 1000 * 60 * 2, // 2 minutes - shorter for faster auth state updates
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    // Remove refetchInterval to avoid unnecessary requests
   });
 }
 
@@ -25,7 +32,10 @@ export function useProfileWithRoles(userId?: string) {
     queryFn: () => getUserProfileWithRoles(userId),
     retry: (failureCount: number, error: Error) => {
       if (isAuthError(error)) return false;
-      return failureCount < 3;
+      return failureCount < 2;
     },
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 } 

@@ -21,9 +21,12 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
-  const { data: profile } = useProfile();
+  const { data: profileData } = useProfile();
   const { mutate: logout } = useLogout();
   const { data: cartData } = useCart();
+
+  // Check if user is authenticated - profile data should exist and be successful
+  const isAuthenticated = profileData?.success && profileData?.profile;
 
   const navItems = [
     { href: "/products", label: "Sản phẩm" },
@@ -88,7 +91,7 @@ export default function Header() {
             </Button>
 
             {/* User Menu */}
-            {profile ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="p-2">
@@ -155,7 +158,7 @@ export default function Header() {
                 </Link>
               ))}
 
-              {!profile && (
+              {!isAuthenticated && (
                 <div className="px-4 pt-4 space-y-2 border-t">
                   <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>
                     <Button

@@ -83,7 +83,10 @@ export default function RegisterForm() {
     register.mutate(submitData, {
       onSuccess: (data) => {
         if (data.success) {
-          router.push("/auth/login?message=registration-success");
+          // Give a small delay to allow profile queries to be invalidated and refetched
+          setTimeout(() => {
+            router.push("/");
+          }, 500);
         }
       },
     });

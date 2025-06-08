@@ -19,8 +19,13 @@ export function useLogin() {
           description: data.message,
         });
         
-        // Invalidate auth-related queries
-        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.all });
+        // Force refetch auth-related queries to refresh user state immediately
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.profile() });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.profileWithRoles() });
+        queryClient.refetchQueries({ queryKey: QUERY_KEYS.auth.profile() });
+        
+        // Also invalidate cart to fetch user's cart data
+        queryClient.invalidateQueries({ queryKey: ['cart'] });
         
         // Redirect to appropriate page
         if (data.redirectTo) {

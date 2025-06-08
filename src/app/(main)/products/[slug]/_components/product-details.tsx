@@ -123,13 +123,13 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         />
 
         {/* Wishlist Button */}
-        <div className="flex justify-center">
+        <div>
           <WishlistButton
             productId={product.id}
             size="lg"
             variant="outline"
             showText={true}
-            className="min-w-[200px]"
+            className="w-full"
           />
         </div>
       </div>
