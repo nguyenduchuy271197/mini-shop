@@ -33,14 +33,7 @@ export default function RevenueReportsPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Báo Cáo Doanh Thu</h1>
-        <p className="text-gray-600 mt-2">
-          Phân tích chi tiết doanh thu theo thời gian và các yếu tố khác
-        </p>
-      </div>
-
-      <RevenueAnalytics onExport={handleExportData} />
+H      <RevenueAnalytics onExport={handleExportData} />
     </div>
   );
 }

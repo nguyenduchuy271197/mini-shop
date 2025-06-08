@@ -63,9 +63,25 @@ export function DateRangePicker({
 
   const handleCustomApply = () => {
     if (tempStartDate && tempEndDate) {
+      // Convert to start and end of day for proper datetime format
+      const startOfDay = new Date(
+        tempStartDate.getFullYear(),
+        tempStartDate.getMonth(),
+        tempStartDate.getDate()
+      );
+      const endOfDay = new Date(
+        tempEndDate.getFullYear(),
+        tempEndDate.getMonth(),
+        tempEndDate.getDate(),
+        23,
+        59,
+        59,
+        999
+      );
+
       onChange({
-        startDate: format(tempStartDate, "yyyy-MM-dd"),
-        endDate: format(tempEndDate, "yyyy-MM-dd"),
+        startDate: startOfDay.toISOString(),
+        endDate: endOfDay.toISOString(),
       });
       setIsCustom(false);
     }
