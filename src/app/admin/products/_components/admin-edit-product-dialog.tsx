@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Image from "next/image";
 import { useUpdateProduct } from "@/hooks/admin/products";
 import { useAdminCategories } from "@/hooks/admin/categories";
+import { useUploadFile } from "@/hooks/admin/files";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/types/custom.types";
 import {
@@ -36,7 +38,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { MultiTagInput } from "@/components/ui/multi-tag-input";
+import { Loader2, Upload, X } from "lucide-react";
 
 const editProductSchema = z.object({
   name: z
@@ -68,7 +71,8 @@ const editProductSchema = z.object({
   categoryId: z.number().positive("Vui lòng chọn danh mục").optional(),
   brand: z.string().max(100, "Thương hiệu tối đa 100 ký tự").optional(),
   weight: z.number().positive("Trọng lượng phải lớn hơn 0").optional(),
-  tags: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  images: z.array(z.string()).optional(),
   isActive: z.boolean(),
   isFeatured: z.boolean(),
   metaTitle: z.string().max(255, "Meta title tối đa 255 ký tự").optional(),
@@ -96,7 +100,8 @@ export function AdminEditProductDialog({
   product,
 }: AdminEditProductDialogProps) {
   const [open, setOpen] = useState(false);
-  const [tagsInput, setTagsInput] = useState("");
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { toast } = useToast();
 
@@ -121,7 +126,8 @@ export function AdminEditProductDialog({
       lowStockThreshold: 10,
       brand: "",
       weight: 0,
-      tags: "",
+      tags: [],
+      images: [],
       isActive: true,
       isFeatured: false,
       metaTitle: "",
@@ -132,6 +138,14 @@ export function AdminEditProductDialog({
   const updateProduct = useUpdateProduct({
     onSuccess: () => {
       setOpen(false);
+    },
+  });
+
+  const uploadFileMutation = useUploadFile({
+    onSuccess: (result) => {
+      const newImages = [...uploadedImages, result.publicUrl];
+      setUploadedImages(newImages);
+      form.setValue("images", newImages);
     },
   });
 
@@ -156,11 +170,13 @@ export function AdminEditProductDialog({
         isFeatured: product.is_featured ?? false,
         metaTitle: product.meta_title || "",
         metaDescription: product.meta_description || "",
+        tags: product.tags || [],
       });
 
-      // Set tags input
-      const tags = product.tags || [];
-      setTagsInput(tags.join(", "));
+      // Set existing images
+      const images = product.images || [];
+      setUploadedImages(images);
+      form.setValue("images", images);
     }
   }, [open, product, form]);
 
@@ -175,13 +191,56 @@ export function AdminEditProductDialog({
     form.setValue("slug", slug);
   };
 
-  const onSubmit = (data: EditProductFormData) => {
-    // Process tags
-    const tagsArray = tagsInput
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
+  // Handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
 
+    files.forEach((file) => {
+      // Validate file type
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Chỉ hỗ trợ file ảnh (JPEG, PNG, GIF, WebP)");
+        return;
+      }
+
+      // Validate file size (max 5MB per image)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Kích thước file tối đa 5MB");
+        return;
+      }
+
+      // Generate unique file path
+      const fileExtension = file.name.split(".").pop() || "";
+      const fileName = `product-${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2)}.${fileExtension}`;
+
+      uploadFileMutation.mutate({
+        file,
+        bucket: "product-images",
+        path: fileName,
+      });
+    });
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Remove image
+  const removeImage = (index: number) => {
+    const newImages = uploadedImages.filter((_, i) => i !== index);
+    setUploadedImages(newImages);
+    form.setValue("images", newImages);
+  };
+
+  const onSubmit = (data: EditProductFormData) => {
     // Only send changed fields
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {
@@ -223,9 +282,18 @@ export function AdminEditProductDialog({
 
     // Check tags
     const currentTags = product.tags || [];
-    const newTags = tagsArray;
+    const newTags = data.tags || [];
     if (JSON.stringify(currentTags.sort()) !== JSON.stringify(newTags.sort())) {
       updateData.tags = newTags.length > 0 ? newTags : [];
+    }
+
+    // Check images
+    const currentImages = product.images || [];
+    if (
+      JSON.stringify(currentImages.sort()) !==
+      JSON.stringify(uploadedImages.sort())
+    ) {
+      updateData.images = uploadedImages.length > 0 ? uploadedImages : [];
     }
 
     // Only update if there are changes
@@ -382,6 +450,83 @@ export function AdminEditProductDialog({
               )}
             />
 
+            {/* Product Images */}
+            <FormField
+              control={form.control}
+              name="images"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Ảnh sản phẩm</FormLabel>
+                  <FormControl>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-center w-full">
+                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-8 h-8 mb-2 text-gray-500" />
+                            <p className="mb-2 text-sm text-gray-500">
+                              <span className="font-semibold">
+                                Click để upload
+                              </span>{" "}
+                              hoặc kéo thả file
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              PNG, JPG, GIF, WebP (Max 5MB mỗi ảnh)
+                            </p>
+                          </div>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleFileUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {uploadFileMutation.isPending && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Đang upload...
+                        </div>
+                      )}
+
+                      {/* Images Preview */}
+                      {uploadedImages.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {uploadedImages.map((imageUrl, index) => (
+                            <div key={index} className="relative group">
+                              <div className="relative w-full h-32 border-2 border-gray-300 rounded-lg overflow-hidden">
+                                <Image
+                                  src={imageUrl}
+                                  alt={`Product image ${index + 1}`}
+                                  fill
+                                  className="object-cover"
+                                  onError={() => {
+                                    console.log("Image failed to load");
+                                  }}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => removeImage(index)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Pricing */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
@@ -529,38 +674,24 @@ export function AdminEditProductDialog({
             <FormField
               control={form.control}
               name="tags"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tags</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Nhập tags, cách nhau bằng dấu phẩy"
-                      value={tagsInput}
-                      onChange={(e) => setTagsInput(e.target.value)}
+                    <MultiTagInput
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Thêm tag và nhấn Enter"
+                      maxTags={20}
                     />
                   </FormControl>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {tagsInput.split(",").map((tag, index) => {
-                      const trimmedTag = tag.trim();
-                      if (!trimmedTag) return null;
-                      return (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {trimmedTag}
-                        </Badge>
-                      );
-                    })}
-                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             {/* SEO */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="metaTitle"
@@ -644,11 +775,19 @@ export function AdminEditProductDialog({
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
+                disabled={
+                  updateProduct.isPending || uploadFileMutation.isPending
+                }
               >
                 Hủy
               </Button>
-              <Button type="submit" disabled={updateProduct.isPending}>
-                {updateProduct.isPending && (
+              <Button
+                type="submit"
+                disabled={
+                  updateProduct.isPending || uploadFileMutation.isPending
+                }
+              >
+                {(updateProduct.isPending || uploadFileMutation.isPending) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Cập nhật sản phẩm
