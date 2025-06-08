@@ -1,11 +1,12 @@
 import { Suspense } from "react";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { AdminProductsHeader } from "./_components/admin-products-header";
 import { AdminProductsStats } from "./_components/admin-products-stats";
 import { AdminProductsContent } from "./_components/admin-products-content";
 
 export default function AdminProductsPage() {
   return (
-    <div className="space-y-6">
+    <AdminPageWrapper>
       {/* Page Header */}
       <AdminProductsHeader />
 
@@ -18,6 +19,6 @@ export default function AdminProductsPage() {
 
       {/* Products Content (Filters + Table) */}
       <AdminProductsContent />
-    </div>
+    </AdminPageWrapper>
   );
 }

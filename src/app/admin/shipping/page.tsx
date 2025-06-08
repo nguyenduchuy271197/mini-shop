@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ShippingZonesList } from "./_components/shipping-zones-list";
 import { ShippingZoneForm } from "./_components/shipping-zone-form";
 
@@ -40,13 +42,11 @@ export default function ShippingPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Quản Lý Vận Chuyển</h1>
-        <p className="text-gray-600 mt-2">
-          Cấu hình phí vận chuyển theo khu vực, trọng lượng
-        </p>
-      </div>
+    <AdminPageWrapper>
+      <AdminPageHeader
+        title="Quản Lý Vận Chuyển"
+        description="Cấu hình phí vận chuyển theo khu vực, trọng lượng"
+      />
 
       {viewState === "list" ? (
         <ShippingZonesList
@@ -91,6 +91,6 @@ export default function ShippingPage() {
           onSuccess={handleSuccess}
         />
       )}
-    </div>
+    </AdminPageWrapper>
   );
 }

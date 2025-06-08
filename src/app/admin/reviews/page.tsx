@@ -7,6 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import type { ReviewWithDetails } from "@/hooks/admin/reviews";
 import ReviewsList from "./_components/reviews-list";
 import ReviewDetails from "./_components/review-details";
@@ -27,13 +29,11 @@ export default function ReviewsPage() {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Quản Lý Đánh Giá</h1>
-        <p className="text-muted-foreground">
-          Duyệt, xóa đánh giá không phù hợp
-        </p>
-      </div>
+    <AdminPageWrapper>
+      <AdminPageHeader
+        title="Quản Lý Đánh Giá"
+        description="Duyệt, xóa đánh giá không phù hợp"
+      />
 
       <ReviewsList onViewDetails={handleViewDetails} />
 
@@ -51,6 +51,6 @@ export default function ReviewsPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPageWrapper>
   );
 }

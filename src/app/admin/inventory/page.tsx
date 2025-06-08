@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { AdminInventoryHeader } from "./_components/admin-inventory-header";
 import { AdminInventoryTable } from "./_components/admin-inventory-table";
 import { AdminInventoryFilters } from "./_components/admin-inventory-filters";
@@ -26,7 +27,7 @@ export default function AdminInventoryPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <AdminPageWrapper>
       {/* Page Header */}
       <AdminInventoryHeader />
 
@@ -62,6 +63,6 @@ export default function AdminInventoryPage() {
       >
         <AdminInventoryTable filters={filters} />
       </Suspense>
-    </div>
+    </AdminPageWrapper>
   );
 }

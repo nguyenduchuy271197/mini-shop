@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminDashboardStats } from "./_components/admin-dashboard-stats";
 import { AdminRecentOrders } from "./_components/admin-recent-orders";
 import { AdminTopProducts } from "./_components/admin-top-products";
@@ -42,14 +44,11 @@ export default async function AdminDashboardPage() {
     0;
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">
-          Tổng quan về hoạt động kinh doanh của Mini Shop
-        </p>
-      </div>
+    <AdminPageWrapper>
+      <AdminPageHeader
+        title="Dashboard"
+        description="Tổng quan về hoạt động kinh doanh của Mini Shop"
+      />
 
       {/* Statistics Cards */}
       <AdminDashboardStats
@@ -67,6 +66,6 @@ export default async function AdminDashboardPage() {
         {/* Top Products */}
         <AdminTopProducts />
       </div>
-    </div>
+    </AdminPageWrapper>
   );
 }

@@ -12,17 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Calendar,
-  DollarSign,
-  Hash,
-  ShoppingCart,
-  Star,
-  Users,
-  AlertTriangle,
-  CheckCircle,
-  Tag,
-} from "lucide-react";
+import { Calendar, DollarSign, Hash, Star, Users, Tag } from "lucide-react";
 
 interface AdminCouponDetailDialogProps {
   coupon: Coupon;

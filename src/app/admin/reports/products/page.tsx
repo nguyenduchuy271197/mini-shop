@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { BestSellingProducts } from "../_components/best-selling-products";
 import type { BestSellingProduct } from "@/hooks/admin/reports";
 import { useToast } from "@/hooks/use-toast";
@@ -32,8 +33,8 @@ export default function ProductsReportsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <AdminPageWrapper>
       <BestSellingProducts onExport={handleExportData} />
-    </div>
+    </AdminPageWrapper>
   );
 }

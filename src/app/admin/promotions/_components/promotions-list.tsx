@@ -59,9 +59,7 @@ import { AdminEditCouponDialog } from "./admin-edit-coupon-dialog";
 import { AdminCouponDetailDialog } from "./admin-coupon-detail-dialog";
 import { Coupon } from "@/types/custom.types";
 
-interface PromotionsListProps {}
-
-export function PromotionsList({}: PromotionsListProps) {
+export function PromotionsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

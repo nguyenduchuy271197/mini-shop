@@ -1,7 +1,5 @@
 "use client";
 
-import { toast } from "sonner";
-import { useUpdateCoupon } from "@/hooks/admin/coupons";
 import { Coupon } from "@/types/custom.types";
 import {
   Dialog,
@@ -23,16 +21,6 @@ export function AdminEditCouponDialog({
   open,
   onOpenChange,
 }: AdminEditCouponDialogProps) {
-  const updateCoupon = useUpdateCoupon({
-    onSuccess: () => {
-      toast.success("Mã giảm giá đã được cập nhật thành công");
-      onOpenChange(false);
-    },
-    onError: (error) => {
-      toast.error("Có lỗi xảy ra khi cập nhật mã giảm giá: " + String(error));
-    },
-  });
-
   const handleSuccess = () => {
     onOpenChange(false);
   };

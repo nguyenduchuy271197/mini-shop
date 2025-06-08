@@ -1,11 +1,12 @@
 import { Suspense } from "react";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { AdminOrdersTable } from "./_components/admin-orders-table";
 import { AdminOrdersStats } from "./_components/admin-orders-stats";
 import { AdminOrdersHeader } from "./_components/admin-orders-header";
 
 export default function AdminOrdersPage() {
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <AdminPageWrapper>
       <AdminOrdersHeader />
 
       <Suspense
@@ -19,6 +20,6 @@ export default function AdminOrdersPage() {
       >
         <AdminOrdersTable />
       </Suspense>
-    </div>
+    </AdminPageWrapper>
   );
 }

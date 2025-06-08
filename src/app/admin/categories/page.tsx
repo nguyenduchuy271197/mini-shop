@@ -1,11 +1,12 @@
 import { Suspense } from "react";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { AdminCategoriesHeader } from "./_components/admin-categories-header";
 import { AdminCategoriesTable } from "./_components/admin-categories-table";
 import { AdminCategoriesStats } from "./_components/admin-categories-stats";
 
 export default function AdminCategoriesPage() {
   return (
-    <div className="space-y-6">
+    <AdminPageWrapper>
       {/* Page Header */}
       <AdminCategoriesHeader />
 
@@ -29,6 +30,6 @@ export default function AdminCategoriesPage() {
           </Suspense>
         </div>
       </div>
-    </div>
+    </AdminPageWrapper>
   );
 }

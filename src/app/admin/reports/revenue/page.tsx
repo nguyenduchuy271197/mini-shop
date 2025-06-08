@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { RevenueAnalytics } from "../_components/revenue-analytics";
 import type { RevenueAnalytics as RevenueAnalyticsType } from "@/hooks/admin/reports";
 import { useToast } from "@/hooks/use-toast";
@@ -32,8 +33,8 @@ export default function RevenueReportsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-H      <RevenueAnalytics onExport={handleExportData} />
-    </div>
+    <AdminPageWrapper>
+      <RevenueAnalytics onExport={handleExportData} />
+    </AdminPageWrapper>
   );
 }

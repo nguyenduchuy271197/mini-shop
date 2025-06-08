@@ -7,6 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import type { Banner } from "@/hooks/admin/banners";
 import BannersList from "./_components/banners-list";
 import BannerForm from "./_components/banner-form";
@@ -43,13 +45,11 @@ export default function BannersPage() {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Quản Lý Banner</h1>
-        <p className="text-muted-foreground">
-          Thêm, sửa, xóa banner quảng cáo trên trang chủ
-        </p>
-      </div>
+    <AdminPageWrapper>
+      <AdminPageHeader
+        title="Quản Lý Banner"
+        description="Thêm, sửa, xóa banner quảng cáo trên trang chủ"
+      />
 
       <BannersList
         onCreateBanner={handleCreateBanner}
@@ -71,6 +71,6 @@ export default function BannersPage() {
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPageWrapper>
   );
 }

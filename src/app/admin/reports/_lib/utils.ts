@@ -1,5 +1,3 @@
-import { format } from "date-fns";
-
 // Get growth icon
 export function getGrowthIcon(percentage: number): string {
   if (percentage > 0) return "trending-up";

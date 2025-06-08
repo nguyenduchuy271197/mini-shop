@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { AdminCustomersHeader } from "./_components/admin-customers-header";
 import { AdminCustomersStats } from "./_components/admin-customers-stats";
 import { AdminCustomersTable } from "./_components/admin-customers-table";
@@ -142,7 +143,7 @@ export default function CustomersPage() {
   const totalCustomers = metrics.totalCustomers;
 
   return (
-    <div className="space-y-6 p-6">
+    <AdminPageWrapper>
       {/* Header */}
       <AdminCustomersHeader
         onRefresh={handleRefresh}
@@ -166,6 +167,6 @@ export default function CustomersPage() {
         open={isDetailDialogOpen}
         onOpenChange={handleCloseDetailDialog}
       />
-    </div>
+    </AdminPageWrapper>
   );
 }

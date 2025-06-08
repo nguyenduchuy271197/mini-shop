@@ -238,17 +238,6 @@ export async function bulkUpdateOrderStatus(data: BulkUpdateOrdersData): Promise
 
 // Helper function to validate status transitions
 function validateStatusTransition(currentStatus: OrderStatus, newStatus: OrderStatus): { isValid: boolean; error?: string } {
-  // Define valid status transitions
-  const validTransitions: Record<OrderStatus, OrderStatus[]> = {
-    'pending': ['confirmed', 'cancelled'],
-    'confirmed': ['processing', 'cancelled'],
-    'processing': ['shipped', 'cancelled'],
-    'shipped': ['delivered', 'cancelled'],
-    'delivered': ['refunded'], // Can refund delivered orders
-    'cancelled': [], // Cannot change from cancelled
-    'refunded': [], // Cannot change from refunded
-  };
-
   // If trying to set the same status
   if (currentStatus === newStatus) {
     return {
@@ -257,16 +246,34 @@ function validateStatusTransition(currentStatus: OrderStatus, newStatus: OrderSt
     };
   }
 
-  // Check if transition is allowed
-  const allowedTransitions = validTransitions[currentStatus] || [];
+  // Define invalid transitions (what cannot be changed)
+  const invalidTransitions: Partial<Record<OrderStatus, OrderStatus[]>> = {
+    'cancelled': ['pending', 'confirmed', 'processing', 'shipped', 'delivered'], // Cannot reactivate cancelled orders
+    'refunded': ['pending', 'confirmed', 'processing', 'shipped', 'delivered'], // Cannot reactivate refunded orders
+    'delivered': ['pending', 'confirmed', 'processing'], // Cannot go backwards from delivered (except refund/cancel)
+  };
+
+
+
+  // Check if transition is explicitly forbidden
+  const forbiddenTransitions = invalidTransitions[currentStatus] || [];
   
-  if (!allowedTransitions.includes(newStatus)) {
+  if (forbiddenTransitions.includes(newStatus)) {
     return {
       isValid: false,
       error: `Không thể chuyển từ trạng thái "${getStatusDisplayName(currentStatus)}" sang "${getStatusDisplayName(newStatus)}"`,
     };
   }
 
+  // Special constraint: can only refund delivered or cancelled orders
+  if (newStatus === 'refunded' && !['delivered', 'cancelled'].includes(currentStatus)) {
+    return {
+      isValid: false,
+      error: `Chỉ có thể hoàn tiền cho đơn hàng đã giao hoặc đã hủy`,
+    };
+  }
+
+  // All other transitions are allowed (admin has flexibility)
   return { isValid: true };
 }
 

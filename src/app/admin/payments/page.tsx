@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { format, subDays } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { AdminPaymentsHeader } from "./_components/admin-payments-header";
 import { AdminPaymentsAnalytics } from "./_components/admin-payments-analytics";
 import { AdminPaymentsFilters } from "./_components/admin-payments-filters";
@@ -109,7 +110,7 @@ export default function AdminPaymentsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <AdminPageWrapper spacing="loose" container={false}>
       {/* Header */}
       <AdminPaymentsHeader
         onExport={handleExport}
@@ -157,6 +158,6 @@ export default function AdminPaymentsPage() {
           />
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPageWrapper>
   );
 }

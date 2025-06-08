@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
-import { useCreateCoupon } from "@/hooks/admin/coupons";
 import {
   Dialog,
   DialogContent,
@@ -21,16 +19,6 @@ export function AdminCreateCouponDialog({
   children,
 }: AdminCreateCouponDialogProps) {
   const [open, setOpen] = useState(false);
-
-  const createCoupon = useCreateCoupon({
-    onSuccess: () => {
-      toast.success("Mã giảm giá đã được tạo thành công");
-      setOpen(false);
-    },
-    onError: (error) => {
-      toast.error("Có lỗi xảy ra khi tạo mã giảm giá: " + String(error));
-    },
-  });
 
   const handleSuccess = () => {
     setOpen(false);
