@@ -159,7 +159,7 @@ export default function OrderCard({ order }: OrderCardProps) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/orders/${order.id}`}>
+              <Link href={`/dashboard/orders/${order.id}`}>
                 <Eye className="w-4 h-4 mr-2" />
                 Xem chi tiết
               </Link>

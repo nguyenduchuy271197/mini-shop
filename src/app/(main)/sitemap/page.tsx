@@ -51,7 +51,7 @@ export default function SitemapPage() {
         { title: "Giỏ hàng", href: "/cart" },
         { title: "Thanh toán", href: "/checkout" },
         { title: "Lịch sử đơn hàng", href: "/dashboard/orders" },
-        { title: "Theo dõi đơn hàng", href: "/orders/track" },
+        { title: "Theo dõi đơn hàng", href: "/dashboard/orders/track" },
         { title: "Yêu thích", href: "/dashboard/wishlist" },
       ],
     },

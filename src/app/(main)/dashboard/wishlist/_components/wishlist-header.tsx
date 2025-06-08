@@ -1,13 +1,11 @@
 "use client";
 
-import { Heart, ShoppingCart, Trash2 } from "lucide-react";
+import { Heart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useClearWishlist } from "@/hooks/wishlists";
-import { useToast } from "@/hooks/use-toast";
 
 export default function WishlistHeader() {
   const clearWishlist = useClearWishlist();
-  const { toast } = useToast();
 
   const handleClearWishlist = () => {
     if (
@@ -17,15 +15,6 @@ export default function WishlistHeader() {
     ) {
       clearWishlist.mutate({ confirm: true });
     }
-  };
-
-  const handleMoveAllToCart = () => {
-    // This would need to be implemented differently as the hook only supports single items
-    // For now, show a message
-    toast({
-      title: "Thông báo",
-      description: "Tính năng thêm tất cả vào giỏ hàng sẽ được cập nhật sớm",
-    });
   };
 
   return (
@@ -45,17 +34,6 @@ export default function WishlistHeader() {
       </div>
 
       <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
-        <Button
-          variant="outline"
-          onClick={handleMoveAllToCart}
-          className="inline-flex items-center justify-center"
-          size="sm"
-        >
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          <span className="hidden sm:inline">Thêm tất cả vào giỏ</span>
-          <span className="sm:hidden">Thêm tất cả</span>
-        </Button>
-
         <Button
           variant="outline"
           onClick={handleClearWishlist}

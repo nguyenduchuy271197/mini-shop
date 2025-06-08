@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useProfile } from "@/hooks/users/use-profile";
 import { useLogout } from "@/hooks/auth/use-logout";
 import { useCart } from "@/hooks/cart";
+import { useWishlist } from "@/hooks/wishlists/use-wishlist";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function Header() {
   const { data: profileData } = useProfile();
   const { mutate: logout } = useLogout();
   const { data: cartData } = useCart();
+  const { data: wishlistData } = useWishlist();
 
   // Check if user is authenticated - profile data should exist and be successful
   const isAuthenticated = profileData?.success && profileData?.profile;
@@ -70,6 +72,30 @@ export default function Header() {
             >
               <Search className="h-5 w-5" />
             </Button>
+
+            {/* Wishlist */}
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative p-2"
+                asChild
+              >
+                <Link href="/dashboard/wishlist">
+                  <Heart className="h-5 w-5" />
+                  {wishlistData?.success &&
+                    wishlistData.wishlist &&
+                    wishlistData.wishlist.length > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+                      >
+                        {wishlistData.wishlist.length}
+                      </Badge>
+                    )}
+                </Link>
+              </Button>
+            )}
 
             {/* Cart */}
             <Button variant="ghost" size="sm" className="relative p-2" asChild>
