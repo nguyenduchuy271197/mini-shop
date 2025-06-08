@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Upload, Trash2, User } from "lucide-react";
 import { useProfile, useUploadAvatar, useDeleteAvatar } from "@/hooks/users";
+import { toast } from "@/hooks/use-toast";
 
 export default function AvatarSection() {
   const { data: profileData, isLoading: isLoadingProfile } = useProfile();
@@ -27,12 +28,30 @@ export default function AvatarSection() {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith("image/")) {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "File không hợp lệ",
+          description:
+            "Chỉ chấp nhận file ảnh định dạng JPEG, PNG, WebP hoặc GIF",
+          variant: "destructive",
+        });
         return;
       }
 
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
+      // Validate file size (max 1MB to match server)
+      const maxSize = 1 * 1024 * 1024; // 1MB
+      if (file.size > maxSize) {
+        toast({
+          title: "File quá lớn",
+          description: "Kích thước file không được vượt quá 1MB",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -77,7 +96,7 @@ export default function AvatarSection() {
       <CardHeader>
         <CardTitle>Ảnh đại diện</CardTitle>
         <CardDescription>
-          Cập nhật ảnh đại diện của bạn. Chỉ chấp nhận file ảnh dưới 5MB.
+          Cập nhật ảnh đại diện của bạn. Chỉ chấp nhận file ảnh dưới 1MB.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -102,7 +121,7 @@ export default function AvatarSection() {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={handleFileSelect}
           className="hidden"
         />
@@ -192,7 +211,7 @@ export default function AvatarSection() {
         {/* Guidelines */}
         <div className="text-xs text-gray-500 space-y-1">
           <p>• Chỉ chấp nhận file ảnh (JPG, PNG, GIF, WebP)</p>
-          <p>• Kích thước tối đa: 5MB</p>
+          <p>• Kích thước tối đa: 1MB</p>
           <p>• Khuyến nghị: ảnh vuông với tỷ lệ 1:1</p>
         </div>
       </CardContent>

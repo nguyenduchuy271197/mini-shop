@@ -7,9 +7,11 @@ type UploadAvatarResult =
   | { success: true; message: string; avatarUrl: string }
   | { success: false; error: string };
 
-export async function uploadAvatar(file: File): Promise<UploadAvatarResult> {
+export async function uploadAvatar(formData: FormData): Promise<UploadAvatarResult> {
   try {
-    // 1. Validate file
+    // 1. Get file from FormData
+    const file = formData.get("file") as File;
+    
     if (!file) {
       return {
         success: false,
@@ -106,7 +108,7 @@ export async function uploadAvatar(file: File): Promise<UploadAvatarResult> {
       message: "Tải lên ảnh đại diện thành công!",
       avatarUrl: publicUrl,
     };
-  } catch  {
+  } catch {
     return {
       success: false,
       error: "Đã xảy ra lỗi không mong muốn khi tải lên ảnh đại diện",

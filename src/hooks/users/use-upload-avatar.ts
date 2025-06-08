@@ -9,7 +9,11 @@ export function useUploadAvatar() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: uploadAvatar,
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return uploadAvatar(formData);
+    },
     onSuccess: (data) => {
       if (data.success) {
         toast({
