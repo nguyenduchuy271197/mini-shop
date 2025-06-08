@@ -92,11 +92,6 @@ export default function CategoriesGrid() {
                       </Badge>
                     )}
                 </div>
-
-                {/* Category Slug */}
-                <div className="text-xs text-muted-foreground">
-                  /{category.slug}
-                </div>
               </div>
             </CardContent>
           </Card>

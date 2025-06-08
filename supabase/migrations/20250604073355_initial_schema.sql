@@ -92,13 +92,12 @@ create table public.categories (
   slug text not null unique,
   description text,
   image_url text,
-  parent_id bigint references public.categories(id) on delete set null,
   is_active boolean default true not null,
   sort_order integer default 0 not null,
   created_at timestamp with time zone default now() not null,
   updated_at timestamp with time zone default now() not null
 );
-comment on table public.categories is 'Product categories with hierarchical support';
+comment on table public.categories is 'Product categories';
 
 -- products table - main products
 create table public.products (
@@ -652,7 +651,7 @@ using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::tex
 -- frequently queried columns
 create index idx_profiles_user_id on public.profiles (id);
 create index idx_user_roles_user_id on public.user_roles (user_id);
-create index idx_categories_parent_id on public.categories (parent_id);
+
 create index idx_categories_slug on public.categories (slug);
 create index idx_products_category_id on public.products (category_id);
 create index idx_products_slug on public.products (slug);

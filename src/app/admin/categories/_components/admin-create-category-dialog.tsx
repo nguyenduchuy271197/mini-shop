@@ -24,15 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useCreateCategory } from "@/hooks/admin/categories";
-import { useCategories } from "@/hooks/categories";
 import { Loader2 } from "lucide-react";
 
 const createCategorySchema = z.object({
@@ -42,7 +34,6 @@ const createCategorySchema = z.object({
     .max(100, "Tên danh mục tối đa 100 ký tự"),
   slug: z.string().min(1, "Slug là bắt buộc").max(100, "Slug tối đa 100 ký tự"),
   description: z.string().optional(),
-  parentId: z.string().optional(),
   sortOrder: z
     .number()
     .min(0, "Thứ tự sắp xếp phải lớn hơn hoặc bằng 0")
@@ -60,7 +51,6 @@ export function AdminCreateCategoryDialog({
   children,
 }: AdminCreateCategoryDialogProps) {
   const [open, setOpen] = useState(false);
-  const { data: categoriesData } = useCategories();
 
   const form = useForm<CreateCategoryFormData>({
     resolver: zodResolver(createCategorySchema),
@@ -68,7 +58,6 @@ export function AdminCreateCategoryDialog({
       name: "",
       slug: "",
       description: "",
-      parentId: "none",
       sortOrder: 0,
       isActive: true,
     },
@@ -82,15 +71,7 @@ export function AdminCreateCategoryDialog({
   });
 
   const onSubmit = (data: CreateCategoryFormData) => {
-    const processedData = {
-      ...data,
-      parentId:
-        data.parentId && data.parentId !== "none"
-          ? parseInt(data.parentId)
-          : undefined,
-    };
-
-    createCategoryMutation.mutate(processedData);
+    createCategoryMutation.mutate(data);
   };
 
   // Auto-generate slug from name
@@ -173,47 +154,6 @@ export function AdminCreateCategoryDialog({
                 </FormItem>
               )}
             />
-
-            {/* Parent Category */}
-            {categoriesData?.success &&
-              categoriesData.categories &&
-              categoriesData.categories.length > 0 && (
-                <FormField
-                  control={form.control}
-                  name="parentId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Danh mục cha</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn danh mục cha (tùy chọn)" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">
-                            Không có danh mục cha
-                          </SelectItem>
-                          {categoriesData.categories
-                            .filter((cat) => !cat.parent_id) // Only show parent categories
-                            .map((category) => (
-                              <SelectItem
-                                key={category.id}
-                                value={category.id.toString()}
-                              >
-                                {category.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
 
             {/* Sort Order */}
             <FormField

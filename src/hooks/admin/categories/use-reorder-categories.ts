@@ -9,7 +9,6 @@ import { Category } from "@/types/custom.types";
 interface CategoryOrder {
   categoryId: number;
   sortOrder: number;
-  parentId?: number;
 }
 
 interface ReorderCategoriesData {
@@ -25,8 +24,6 @@ function isClientError(error: Error): boolean {
   return error.message.includes("không hợp lệ") || 
          error.message.includes("không tìm thấy") ||
          error.message.includes("bị trùng lặp") ||
-         error.message.includes("không thể là cha của chính nó") ||
-         error.message.includes("đã bị vô hiệu hóa") ||
          error.message.includes("ít nhất một danh mục");
 }
 
@@ -44,7 +41,7 @@ export function useReorderCategories(options: UseReorderCategoriesOptions = {}) 
       
       return result;
     },
-    onSuccess: (result, variables) => {
+    onSuccess: (result) => {
       // Invalidate and refetch admin categories
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.admin.categories.all,
@@ -66,23 +63,6 @@ export function useReorderCategories(options: UseReorderCategoriesOptions = {}) 
           queryKey: QUERY_KEYS.categories.detail(category.slug),
         });
       });
-
-      // If any parent changes occurred, invalidate parent-child relationships
-      const hasParentChanges = variables.categoryOrders.some(order => order.parentId !== undefined);
-      if (hasParentChanges) {
-        // Get unique parent IDs that were affected
-        const parentIds = new Set(
-          variables.categoryOrders
-            .filter(order => order.parentId !== undefined)
-            .map(order => order.parentId!)
-        );
-
-        parentIds.forEach(parentId => {
-          queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.categories.detail(`parent-${parentId}`),
-          });
-        });
-      }
 
       toast({
         title: "Thành công",

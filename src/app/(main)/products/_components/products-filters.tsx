@@ -6,19 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCategoryTree } from "@/hooks/categories";
-import { Loader2, Filter, X, ChevronRight } from "lucide-react";
-import { Category } from "@/types/custom.types";
-
-// Extended category type for tree structure
-type CategoryTreeNode = Category & {
-  product_count?: number;
-  children: CategoryTreeNode[];
-  level: number;
-  path: string[];
-};
+import { Loader2, Filter, X } from "lucide-react";
 
 interface ProductsFiltersProps {
   filters: {
@@ -37,51 +27,15 @@ export default function ProductsFilters({
 }: ProductsFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: categoryTreeData, isLoading: categoriesLoading } =
-    useCategoryTree({
-      includeProductCount: true,
-    });
+  const { data: categoryData, isLoading: categoriesLoading } = useCategoryTree({
+    includeProductCount: true,
+  });
 
   const [minPrice, setMinPrice] = useState(filters.minPrice?.toString() || "");
   const [maxPrice, setMaxPrice] = useState(filters.maxPrice?.toString() || "");
   const [brandFilter, setBrandFilter] = useState(brand);
-  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(
-    new Set()
-  );
 
-  const categories = categoryTreeData?.success
-    ? categoryTreeData.categories
-    : [];
-
-  // Helper function to collect all child category IDs recursively
-  const collectAllChildCategoryIds = (category: CategoryTreeNode): number[] => {
-    const ids = [category.id];
-
-    if (category.children && category.children.length > 0) {
-      category.children.forEach((child) => {
-        ids.push(...collectAllChildCategoryIds(child));
-      });
-    }
-
-    return ids;
-  };
-
-  // Helper function to find category by ID in the tree
-  const findCategoryById = (
-    categories: CategoryTreeNode[],
-    id: number
-  ): CategoryTreeNode | null => {
-    for (const category of categories) {
-      if (category.id === id) {
-        return category;
-      }
-      if (category.children && category.children.length > 0) {
-        const found = findCategoryById(category.children, id);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
+  const categories = categoryData?.success ? categoryData.categories : [];
 
   const updateFilter = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams);
@@ -100,29 +54,10 @@ export default function ProductsFilters({
 
   const handleCategoryChange = (categoryId: number, checked: boolean) => {
     if (checked) {
-      // Find the selected category and collect all its child IDs
-      const selectedCategory = findCategoryById(categories, categoryId);
-      if (selectedCategory) {
-        const allCategoryIds = collectAllChildCategoryIds(selectedCategory);
-        // Pass comma-separated list of category IDs
-        updateFilter("category", allCategoryIds.join(","));
-      } else {
-        // Fallback to single category ID
-        updateFilter("category", categoryId.toString());
-      }
+      updateFilter("category", categoryId.toString());
     } else {
       updateFilter("category", null);
     }
-  };
-
-  const toggleCategoryExpanded = (categoryId: number) => {
-    const newExpanded = new Set(expandedCategories);
-    if (newExpanded.has(categoryId)) {
-      newExpanded.delete(categoryId);
-    } else {
-      newExpanded.add(categoryId);
-    }
-    setExpandedCategories(newExpanded);
   };
 
   const handlePriceFilter = () => {
@@ -175,183 +110,148 @@ export default function ProductsFilters({
     filters.brand ||
     filters.inStock;
 
-  // Check if current category or any of its parents/children are selected
-  const isCategorySelected = (category: CategoryTreeNode): boolean => {
-    if (!filters.categoryId) return false;
-
-    // Check if this category is the selected one
-    if (category.id === filters.categoryId) return true;
-
-    // Check if this category is a child of the selected category
-    const selectedCategory = findCategoryById(categories, filters.categoryId);
-    if (selectedCategory) {
-      const allCategoryIds = collectAllChildCategoryIds(selectedCategory);
-      return allCategoryIds.includes(category.id);
-    }
-
-    return false;
-  };
-
-  // Render category item recursively
-  const renderCategoryItem = (
-    category: CategoryTreeNode,
-    level: number = 0
-  ) => (
-    <div key={category.id} className="space-y-1">
-      <div
-        className="flex items-center space-x-2"
-        style={{ paddingLeft: `${level * 16}px` }}
-      >
-        {category.children && category.children.length > 0 && (
+  return (
+    <div className="space-y-6">
+      {/* Filter Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Filter className="h-5 w-5" />
+          <h3 className="font-semibold">Bộ lọc</h3>
+        </div>
+        {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
-            className="h-4 w-4 p-0 hover:bg-transparent"
-            onClick={() => toggleCategoryExpanded(category.id)}
+            onClick={clearAllFilters}
+            className="text-muted-foreground hover:text-foreground"
           >
-            <ChevronRight
-              className={`h-3 w-3 transition-transform ${
-                expandedCategories.has(category.id) ? "rotate-90" : ""
-              }`}
-            />
+            <X className="h-4 w-4 mr-1" />
+            Xóa bộ lọc
           </Button>
         )}
-        {(!category.children || category.children.length === 0) && (
-          <div className="w-4" /> // Spacer for alignment
-        )}
-        <Checkbox
-          id={`category-${category.id}`}
-          checked={isCategorySelected(category)}
-          onCheckedChange={(checked) =>
-            handleCategoryChange(category.id, checked as boolean)
-          }
-        />
-        <Label
-          htmlFor={`category-${category.id}`}
-          className={`text-sm cursor-pointer flex-1 ${
-            level === 0 ? "font-medium" : "font-normal text-muted-foreground"
-          }`}
-        >
-          {category.name}
-          {category.product_count !== undefined && (
-            <span className="text-muted-foreground ml-1">
-              ({category.product_count})
-            </span>
-          )}
-        </Label>
       </div>
 
-      {/* Render child categories */}
-      {category.children &&
-        category.children.length > 0 &&
-        expandedCategories.has(category.id) && (
-          <div className="space-y-1">
-            {category.children.map((child: CategoryTreeNode) =>
-              renderCategoryItem(child, level + 1)
-            )}
-          </div>
-        )}
-    </div>
-  );
-
-  return (
-    <Card>
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            Bộ lọc
-          </CardTitle>
-          {hasActiveFilters && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearAllFilters}
-              className="text-xs"
-            >
-              <X className="h-3 w-3 mr-1" />
-              Xóa bộ lọc
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Categories */}
-        <div>
-          <Label className="text-sm font-medium mb-3 block">Danh mục</Label>
+      {/* Categories Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Danh mục</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
           {categoriesLoading ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Đang tải...
+              <span className="text-sm text-muted-foreground">
+                Đang tải danh mục...
+              </span>
+            </div>
+          ) : categories.length > 0 ? (
+            <div className="space-y-2">
+              {categories.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`category-${category.id}`}
+                    checked={filters.categoryId === category.id}
+                    onCheckedChange={(checked) =>
+                      handleCategoryChange(category.id, checked as boolean)
+                    }
+                  />
+                  <Label
+                    htmlFor={`category-${category.id}`}
+                    className="text-sm font-normal cursor-pointer flex-1"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{category.name}</span>
+                      {category.product_count !== undefined && (
+                        <span className="text-xs text-muted-foreground">
+                          ({category.product_count})
+                        </span>
+                      )}
+                    </div>
+                  </Label>
+                </div>
+              ))}
             </div>
           ) : (
-            <div className="space-y-1 max-h-64 overflow-y-auto">
-              {categories.map((category) => renderCategoryItem(category))}
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Không có danh mục nào
+            </p>
           )}
-        </div>
+        </CardContent>
+      </Card>
 
-        <Separator />
-
-        {/* Price Range */}
-        <div>
-          <Label className="text-sm font-medium mb-3 block">Khoảng giá</Label>
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2">
+      {/* Price Range Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Giá</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="min-price" className="text-sm">
+                Giá tối thiểu
+              </Label>
               <Input
+                id="min-price"
                 type="number"
-                placeholder="Từ"
+                placeholder="0"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                className="text-sm"
-              />
-              <Input
-                type="number"
-                placeholder="Đến"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="text-sm"
+                className="mt-1"
               />
             </div>
-            <Button
-              onClick={handlePriceFilter}
-              size="sm"
-              className="w-full"
-              variant="outline"
-            >
-              Áp dụng
-            </Button>
+            <div>
+              <Label htmlFor="max-price" className="text-sm">
+                Giá tối đa
+              </Label>
+              <Input
+                id="max-price"
+                type="number"
+                placeholder="999,999,999"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="mt-1"
+              />
+            </div>
           </div>
-        </div>
+          <Button
+            onClick={handlePriceFilter}
+            className="w-full"
+            variant="outline"
+            size="sm"
+          >
+            Áp dụng
+          </Button>
+        </CardContent>
+      </Card>
 
-        <Separator />
+      {/* Brand Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Thương hiệu</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Input
+            placeholder="Nhập tên thương hiệu..."
+            value={brandFilter}
+            onChange={(e) => setBrandFilter(e.target.value)}
+          />
+          <Button
+            onClick={handleBrandFilter}
+            className="w-full"
+            variant="outline"
+            size="sm"
+          >
+            Áp dụng
+          </Button>
+        </CardContent>
+      </Card>
 
-        {/* Brand */}
-        <div>
-          <Label className="text-sm font-medium mb-3 block">Thương hiệu</Label>
-          <div className="space-y-3">
-            <Input
-              type="text"
-              placeholder="Nhập tên thương hiệu"
-              value={brandFilter}
-              onChange={(e) => setBrandFilter(e.target.value)}
-              className="text-sm"
-            />
-            <Button
-              onClick={handleBrandFilter}
-              size="sm"
-              className="w-full"
-              variant="outline"
-            >
-              Tìm kiếm
-            </Button>
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* Stock Status */}
-        <div>
+      {/* Stock Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Tình trạng</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="in-stock"
@@ -362,11 +262,11 @@ export default function ProductsFilters({
               htmlFor="in-stock"
               className="text-sm font-normal cursor-pointer"
             >
-              Chỉ hiển thị sản phẩm còn hàng
+              Chỉ hiển thị sản phẩm có sẵn
             </Label>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

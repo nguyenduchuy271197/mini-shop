@@ -5,31 +5,28 @@ import { Category } from "@/types/custom.types";
 import { z } from "zod";
 
 // Validation schema
-const getCategoryTreeSchema = z.object({
+const getCategoriesSchema = z.object({
   includeProductCount: z.boolean().optional().default(false),
   includeInactive: z.boolean().optional().default(false),
 });
 
-type GetCategoryTreeData = z.infer<typeof getCategoryTreeSchema>;
+type GetCategoriesData = z.infer<typeof getCategoriesSchema>;
 
-// Extended category type for tree structure
-type CategoryTreeNode = Category & {
+// Extended category type for enhanced data
+type CategoryWithCount = Category & {
   product_count?: number;
-  children: CategoryTreeNode[];
-  level: number;
-  path: string[];
 };
 
 // Return type
-type GetCategoryTreeResult =
-  | { success: true; categories: CategoryTreeNode[] }
+type GetCategoriesResult =
+  | { success: true; categories: CategoryWithCount[] }
   | { success: false; error: string };
 
-export async function getCategoryTree(data?: GetCategoryTreeData): Promise<GetCategoryTreeResult> {
+export async function getCategoryTree(data?: GetCategoriesData): Promise<GetCategoriesResult> {
   try {
     // 1. Validate input
     const { includeProductCount, includeInactive } = data 
-      ? getCategoryTreeSchema.parse(data) 
+      ? getCategoriesSchema.parse(data) 
       : { includeProductCount: false, includeInactive: false };
 
     // 2. Create Supabase client
@@ -62,12 +59,7 @@ export async function getCategoryTree(data?: GetCategoryTreeData): Promise<GetCa
       };
     }
 
-    let enrichedCategories: CategoryTreeNode[] = categories.map(cat => ({
-      ...cat,
-      children: [],
-      level: 0,
-      path: [],
-    }));
+    let enrichedCategories: CategoryWithCount[] = categories;
 
     // 4. Get product count for each category if requested
     if (includeProductCount) {
@@ -98,57 +90,9 @@ export async function getCategoryTree(data?: GetCategoryTreeData): Promise<GetCa
       }
     }
 
-    // 5. Build hierarchical tree structure
-    const categoryMap = new Map<number, CategoryTreeNode>();
-    const rootCategories: CategoryTreeNode[] = [];
-
-    // First pass: create map of all categories
-    enrichedCategories.forEach(category => {
-      categoryMap.set(category.id, category);
-    });
-
-    // Second pass: build hierarchy and calculate levels/paths
-    const buildHierarchy = (
-      category: CategoryTreeNode, 
-      level: number = 0,
-      path: string[] = []
-    ): CategoryTreeNode => {
-      const currentPath = [...path, category.name];
-      const updatedCategory: CategoryTreeNode = {
-        ...category,
-        level,
-        path: currentPath,
-        children: [] as CategoryTreeNode[],
-      };
-
-      // Find and add children
-      enrichedCategories
-        .filter(cat => cat.parent_id === category.id)
-        .forEach(child => {
-          const childNode = buildHierarchy(child, level + 1, currentPath);
-          updatedCategory.children.push(childNode);
-        });
-
-      // Sort children by sort_order
-      updatedCategory.children.sort((a, b) => a.sort_order - b.sort_order);
-
-      return updatedCategory;
-    };
-
-    // Build tree starting from root categories (parent_id is null)
-    enrichedCategories
-      .filter(cat => cat.parent_id === null)
-      .forEach(rootCat => {
-        const treeNode = buildHierarchy(rootCat);
-        rootCategories.push(treeNode);
-      });
-
-    // Sort root categories by sort_order
-    rootCategories.sort((a, b) => a.sort_order - b.sort_order);
-
     return {
       success: true,
-      categories: rootCategories,
+      categories: enrichedCategories,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -160,7 +104,7 @@ export async function getCategoryTree(data?: GetCategoryTreeData): Promise<GetCa
 
     return {
       success: false,
-      error: "Đã xảy ra lỗi không mong muốn khi lấy cây danh mục",
+      error: "Đã xảy ra lỗi không mong muốn khi lấy danh sách danh mục",
     };
   }
 } 

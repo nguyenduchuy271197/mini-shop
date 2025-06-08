@@ -14,7 +14,6 @@ import { Search, X } from "lucide-react";
 interface CategoriesFilters {
   searchTerm?: string;
   isActive?: boolean;
-  parentId?: number | null;
 }
 
 interface AdminCategoriesTableFiltersProps {
@@ -40,22 +39,11 @@ export function AdminCategoriesTableFilters({
     });
   };
 
-  const handleParentChange = (value: string) => {
-    onFiltersChange({
-      ...filters,
-      parentId:
-        value === "all" ? undefined : value === "root" ? null : parseInt(value),
-    });
-  };
-
   const clearFilters = () => {
     onFiltersChange({});
   };
 
-  const hasActiveFilters =
-    filters.searchTerm ||
-    filters.isActive !== undefined ||
-    filters.parentId !== undefined;
+  const hasActiveFilters = filters.searchTerm || filters.isActive !== undefined;
 
   return (
     <div className="space-y-4">
@@ -71,7 +59,7 @@ export function AdminCategoriesTableFilters({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Search */}
-        <div className="relative">
+        <div className="relative col-span-2">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Tìm kiếm theo tên, slug, mô tả..."
@@ -99,27 +87,6 @@ export function AdminCategoriesTableFilters({
             <SelectItem value="all">Tất cả trạng thái</SelectItem>
             <SelectItem value="active">Đang hoạt động</SelectItem>
             <SelectItem value="inactive">Tạm dừng</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Parent Filter */}
-        <Select
-          value={
-            filters.parentId === undefined
-              ? "all"
-              : filters.parentId === null
-              ? "root"
-              : filters.parentId.toString()
-          }
-          onValueChange={handleParentChange}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Lọc theo cấp độ" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả cấp độ</SelectItem>
-            <SelectItem value="root">Danh mục gốc</SelectItem>
-            <SelectItem value="child">Danh mục con</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -23,15 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useUpdateCategory } from "@/hooks/admin/categories";
-import { useCategories } from "@/hooks/categories";
 import { Category } from "@/types/custom.types";
 import { Loader2 } from "lucide-react";
 
@@ -42,7 +34,6 @@ const updateCategorySchema = z.object({
     .max(100, "Tên danh mục tối đa 100 ký tự"),
   slug: z.string().min(1, "Slug là bắt buộc").max(100, "Slug tối đa 100 ký tự"),
   description: z.string().optional(),
-  parentId: z.string().optional(),
   sortOrder: z
     .number()
     .min(0, "Thứ tự sắp xếp phải lớn hơn hoặc bằng 0")
@@ -63,15 +54,12 @@ export function AdminEditCategoryDialog({
   open,
   onOpenChange,
 }: AdminEditCategoryDialogProps) {
-  const { data: categoriesData } = useCategories();
-
   const form = useForm<UpdateCategoryFormData>({
     resolver: zodResolver(updateCategorySchema),
     defaultValues: {
       name: category.name,
       slug: category.slug,
       description: category.description || "",
-      parentId: category.parent_id?.toString() || "none",
       sortOrder: category.sort_order,
       isActive: category.is_active,
     },
@@ -83,7 +71,6 @@ export function AdminEditCategoryDialog({
       name: category.name,
       slug: category.slug,
       description: category.description || "",
-      parentId: category.parent_id?.toString() || "none",
       sortOrder: category.sort_order,
       isActive: category.is_active,
     });
@@ -99,10 +86,6 @@ export function AdminEditCategoryDialog({
     const processedData = {
       categoryId: category.id,
       ...data,
-      parentId:
-        data.parentId && data.parentId !== "none"
-          ? parseInt(data.parentId)
-          : undefined,
     };
 
     updateCategoryMutation.mutate(processedData);
@@ -122,14 +105,6 @@ export function AdminEditCategoryDialog({
 
     form.setValue("slug", slug);
   };
-
-  // Filter out current category and its children from parent options
-  const availableParents =
-    categoriesData?.success && categoriesData.categories
-      ? categoriesData.categories.filter(
-          (cat) => cat.id !== category.id && cat.parent_id !== category.id
-        )
-      : [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -195,39 +170,6 @@ export function AdminEditCategoryDialog({
                 </FormItem>
               )}
             />
-
-            {/* Parent Category */}
-            {availableParents.length > 0 && (
-              <FormField
-                control={form.control}
-                name="parentId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Danh mục cha</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn danh mục cha (tùy chọn)" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="none">
-                          Không có danh mục cha
-                        </SelectItem>
-                        {availableParents
-                          .filter((cat) => !cat.parent_id) // Only show parent categories
-                          .map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id.toString()}>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             {/* Sort Order */}
             <FormField

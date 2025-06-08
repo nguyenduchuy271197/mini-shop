@@ -14,7 +14,6 @@ type GetCategoriesData = z.infer<typeof getCategoriesSchema>;
 // Extended category type with product count
 type CategoryWithProductCount = Category & {
   product_count?: number;
-  children?: CategoryWithProductCount[];
 };
 
 // Return type
@@ -82,35 +81,9 @@ export async function getCategories(data?: GetCategoriesData): Promise<GetCatego
       }
     }
 
-    // 5. Build hierarchical structure
-    const categoryMap = new Map<number, CategoryWithProductCount>();
-    const rootCategories: CategoryWithProductCount[] = [];
-
-    // First pass: create map of all categories
-    enrichedCategories.forEach(category => {
-      categoryMap.set(category.id, { ...category, children: [] });
-    });
-
-    // Second pass: build hierarchy
-    enrichedCategories.forEach(category => {
-      const categoryWithChildren = categoryMap.get(category.id)!;
-      
-      if (category.parent_id) {
-        const parent = categoryMap.get(category.parent_id);
-        if (parent) {
-          parent.children!.push(categoryWithChildren);
-        } else {
-          // Parent not found or not active, treat as root
-          rootCategories.push(categoryWithChildren);
-        }
-      } else {
-        rootCategories.push(categoryWithChildren);
-      }
-    });
-
     return {
       success: true,
-      categories: rootCategories,
+      categories: enrichedCategories,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -57,7 +57,7 @@ export async function deleteCategory(data: DeleteCategoryData): Promise<DeleteCa
     // 4. Get existing category
     const { data: existingCategory, error: fetchError } = await supabase
       .from("categories")
-      .select("id, name, parent_id")
+      .select("id, name")
       .eq("id", categoryId)
       .single();
 
@@ -99,32 +99,16 @@ export async function deleteCategory(data: DeleteCategoryData): Promise<DeleteCa
           error: `Không thể xóa danh mục này vì có ${products.length} sản phẩm: ${productNames}. Hãy chuyển sản phẩm sang danh mục khác hoặc sử dụng tùy chọn xóa ép buộc.`,
         };
       }
-
-      // Check for subcategories
-      const { data: subcategories, error: subcatError } = await supabase
-        .from("categories")
-        .select("id, name")
-        .eq("parent_id", categoryId);
-
-      if (subcatError) {
-        console.error("Error checking subcategories:", subcatError);
-      } else if (subcategories && subcategories.length > 0) {
-        const subcatNames = subcategories.map(c => c.name).join(", ");
-        return {
-          success: false,
-          error: `Không thể xóa danh mục này vì có ${subcategories.length} danh mục con: ${subcatNames}. Hãy xóa hoặc chuyển danh mục con trước hoặc sử dụng tùy chọn xóa ép buộc.`,
-        };
-      }
     }
 
     // 6. If force delete, handle dependencies
     if (force) {
       try {
-        // Move products to parent category or null
+        // Set products' category_id to null (no category)
         const { error: updateProductsError } = await supabase
           .from("products")
           .update({
-            category_id: existingCategory.parent_id,
+            category_id: null,
             updated_at: new Date().toISOString(),
           })
           .eq("category_id", categoryId);
@@ -134,23 +118,6 @@ export async function deleteCategory(data: DeleteCategoryData): Promise<DeleteCa
           return {
             success: false,
             error: "Không thể cập nhật sản phẩm trước khi xóa danh mục",
-          };
-        }
-
-        // Move subcategories to parent category or make them root categories
-        const { error: updateSubcategoriesError } = await supabase
-          .from("categories")
-          .update({
-            parent_id: existingCategory.parent_id,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("parent_id", categoryId);
-
-        if (updateSubcategoriesError) {
-          console.error("Error updating subcategories:", updateSubcategoriesError);
-          return {
-            success: false,
-            error: "Không thể cập nhật danh mục con trước khi xóa danh mục",
           };
         }
       } catch (cleanupError) {
@@ -173,7 +140,7 @@ export async function deleteCategory(data: DeleteCategoryData): Promise<DeleteCa
       if (deleteError.code === "23503") {
         return {
           success: false,
-          error: "Không thể xóa danh mục này vì vẫn còn dữ liệu liên quan. Hãy sử dụng tùy chọn xóa ép buộc hoặc di chuyển sản phẩm/danh mục con trước khi xóa.",
+          error: "Không thể xóa danh mục này vì vẫn còn dữ liệu liên quan. Hãy sử dụng tùy chọn xóa ép buộc hoặc di chuyển sản phẩm trước khi xóa.",
         };
       }
       

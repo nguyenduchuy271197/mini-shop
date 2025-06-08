@@ -12,7 +12,6 @@ interface UpdateCategoryData {
   slug?: string;
   description?: string;
   imageUrl?: string;
-  parentId?: number;
   sortOrder?: number;
   isActive?: boolean;
 }
@@ -28,10 +27,7 @@ function isClientError(error: Error): boolean {
          error.message.includes("không tìm thấy") ||
          error.message.includes("tối đa") ||
          error.message.includes("ít nhất") ||
-         error.message.includes("không thể là cha của chính nó") ||
          error.message.includes("sản phẩm đang hoạt động") ||
-         error.message.includes("danh mục con đang hoạt động") ||
-         error.message.includes("đã bị vô hiệu hóa") ||
          error.message.includes("không có thông tin nào để cập nhật");
 }
 
@@ -65,26 +61,13 @@ export function useUpdateCategory(options: UseUpdateCategoryOptions = {}) {
         queryKey: QUERY_KEYS.categories.detail(result.category.slug),
       });
 
-      // If category parent changed, invalidate both old and new parent's children
-      if (variables.parentId !== undefined) {
-        // Invalidate new parent's children
-        if (variables.parentId) {
-          queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.categories.detail(`parent-${variables.parentId}`),
-          });
-        }
-        
-        // We'd need the old parent_id to invalidate old parent's children
-        // This could be improved by storing the original category data
-      }
-
       // Invalidate products that belong to this category
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.categories.products(result.category.slug),
       });
 
       // Invalidate category tree if structure changed
-      if (variables.parentId !== undefined || variables.sortOrder !== undefined) {
+      if (variables.sortOrder !== undefined) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.categories.tree(),
         });

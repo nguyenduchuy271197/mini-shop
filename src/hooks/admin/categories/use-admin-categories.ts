@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Category } from "@/types/custom.types";
 
 interface AdminCategoryFilters {
-  parentId?: number | null;
   isActive?: boolean;
   searchTerm?: string;
 }
@@ -28,7 +27,6 @@ async function getAdminCategories(params: UseAdminCategoriesParams = {}): Promis
   const supabase = createClient();
   
   const {
-    parentId,
     isActive,
     searchTerm,
     page = 1,
@@ -62,14 +60,6 @@ async function getAdminCategories(params: UseAdminCategoriesParams = {}): Promis
     .select("*", { count: "exact" });
 
   // Apply filters
-  if (parentId !== undefined) {
-    if (parentId === null) {
-      query = query.is("parent_id", null);
-    } else {
-      query = query.eq("parent_id", parentId);
-    }
-  }
-
   if (isActive !== undefined) {
     query = query.eq("is_active", isActive);
   }

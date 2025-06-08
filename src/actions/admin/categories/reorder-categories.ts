@@ -4,15 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { Category } from "@/types/custom.types";
 import { z } from "zod";
 
-// Validation schema
+// Validation schemas
+const categoryOrderSchema = z.object({
+  categoryId: z.number().positive("ID danh mục không hợp lệ"),
+  sortOrder: z.number().int().min(0, "Thứ tự sắp xếp phải >= 0"),
+});
+
 const reorderCategoriesSchema = z.object({
-  categoryOrders: z.array(
-    z.object({
-      categoryId: z.number().positive("ID danh mục không hợp lệ"),
-      sortOrder: z.number().int().min(0, "Thứ tự sắp xếp không thể âm"),
-      parentId: z.number().positive("ID danh mục cha không hợp lệ").optional(),
-    })
-  ).min(1, "Phải có ít nhất một danh mục để sắp xếp"),
+  categoryOrders: z.array(categoryOrderSchema).min(1, "Cần ít nhất một danh mục để sắp xếp"),
 });
 
 type ReorderCategoriesData = z.infer<typeof reorderCategoriesSchema>;
@@ -65,7 +64,7 @@ export async function reorderCategories(data: ReorderCategoriesData): Promise<Re
     const categoryIds = categoryOrders.map(order => order.categoryId);
     const { data: existingCategories, error: fetchError } = await supabase
       .from("categories")
-      .select("id, name, parent_id")
+      .select("id, name")
       .in("id", categoryIds);
 
     if (fetchError) {
@@ -84,109 +83,28 @@ export async function reorderCategories(data: ReorderCategoriesData): Promise<Re
       };
     }
 
-    // 5. Validate parent categories (if any parent changes)
-    const parentIds = categoryOrders
-      .filter(order => order.parentId !== undefined)
-      .map(order => order.parentId!);
-
-    if (parentIds.length > 0) {
-      const { data: parentCategories, error: parentError } = await supabase
-        .from("categories")
-        .select("id, is_active")
-        .in("id", parentIds);
-
-      if (parentError) {
-        return {
-          success: false,
-          error: parentError.message || "Không thể kiểm tra danh mục cha",
-        };
-      }
-
-      const foundParentIds = parentCategories?.map(p => p.id) || [];
-      const missingParentIds = parentIds.filter(id => !foundParentIds.includes(id));
-      
-      if (missingParentIds.length > 0) {
-        return {
-          success: false,
-          error: `Không tìm thấy danh mục cha với ID: ${missingParentIds.join(", ")}`,
-        };
-      }
-
-      // Check if all parent categories are active
-      const inactiveParents = parentCategories?.filter(p => !p.is_active) || [];
-      if (inactiveParents.length > 0) {
-        const inactiveParentIds = inactiveParents.map(p => p.id);
-        return {
-          success: false,
-          error: `Danh mục cha đã bị vô hiệu hóa: ${inactiveParentIds.join(", ")}`,
-        };
-      }
-    }
-
-    // 6. Check for circular references if parent changes
-    for (const order of categoryOrders) {
-      if (order.parentId !== undefined) {
-        const existingCategory = existingCategories.find(c => c.id === order.categoryId);
-        
-        // Skip if parent is not changing
-        if (existingCategory && existingCategory.parent_id === order.parentId) {
-          continue;
-        }
-
-        // Check for circular reference
-        if (order.parentId === order.categoryId) {
-          return {
-            success: false,
-            error: "Danh mục không thể là cha của chính nó",
-          };
-        }
-
-        // For now, we'll do a simplified circular reference check
-        // In a production system, you might want to implement a more comprehensive check
-        // by fetching the entire category tree and validating the hierarchy
-      }
-    }
-
-    // 7. Check for duplicate sort orders within the same parent level
-    const sortOrdersByParent = new Map<number | null, Set<number>>();
+    // 5. Check for duplicate sort orders
+    const sortOrders = categoryOrders.map(order => order.sortOrder);
+    const uniqueSortOrders = new Set(sortOrders);
     
-    for (const order of categoryOrders) {
-      const parentId = order.parentId || null;
-      
-      if (!sortOrdersByParent.has(parentId)) {
-        sortOrdersByParent.set(parentId, new Set());
-      }
-      
-      const sortOrders = sortOrdersByParent.get(parentId)!;
-      
-      if (sortOrders.has(order.sortOrder)) {
-        return {
-          success: false,
-          error: `Thứ tự sắp xếp ${order.sortOrder} bị trùng lặp trong cùng cấp danh mục`,
-        };
-      }
-      
-      sortOrders.add(order.sortOrder);
+    if (sortOrders.length !== uniqueSortOrders.size) {
+      return {
+        success: false,
+        error: "Thứ tự sắp xếp không được trùng lặp",
+      };
     }
 
-    // 8. Update categories
+    // 6. Update categories
     const updatedCategories: Category[] = [];
     const now = new Date().toISOString();
 
     for (const order of categoryOrders) {
-      const updateData: Record<string, string | number | null> = {
-        sort_order: order.sortOrder,
-        updated_at: now,
-      };
-
-      // Only update parent_id if it's explicitly provided
-      if (order.parentId !== undefined) {
-        updateData.parent_id = order.parentId;
-      }
-
       const { data: updatedCategory, error: updateError } = await supabase
         .from("categories")
-        .update(updateData)
+        .update({
+          sort_order: order.sortOrder,
+          updated_at: now,
+        })
         .eq("id", order.categoryId)
         .select()
         .single();

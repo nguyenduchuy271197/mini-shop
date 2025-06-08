@@ -11,7 +11,6 @@ const updateCategorySchema = z.object({
   slug: z.string().min(2, "Slug phải có ít nhất 2 ký tự").max(100, "Slug tối đa 100 ký tự").regex(/^[a-z0-9-]+$/, "Slug chỉ được chứa chữ thường, số và dấu gạch ngang").optional(),
   description: z.string().max(1000, "Mô tả tối đa 1000 ký tự").optional(),
   imageUrl: z.string().url("URL hình ảnh không hợp lệ").optional(),
-  parentId: z.number().positive("ID danh mục cha không hợp lệ").optional(),
   sortOrder: z.number().int().min(0, "Thứ tự sắp xếp không thể âm").optional(),
   isActive: z.boolean().optional(),
 });
@@ -143,75 +142,7 @@ export async function updateCategory(data: UpdateCategoryData): Promise<UpdateCa
       }
     }
 
-    // 7. Validate parent category (if updating parent)
-    if (updateFields.parentId !== undefined) {
-      if (updateFields.parentId) {
-        // Check if new parent exists and is active
-        const { data: parentCategory, error: parentError } = await supabase
-          .from("categories")
-          .select("id, is_active, name")
-          .eq("id", updateFields.parentId)
-          .single();
-
-        if (parentError) {
-          if (parentError.code === "PGRST116") {
-            return {
-              success: false,
-              error: "Không tìm thấy danh mục cha",
-            };
-          }
-          return {
-            success: false,
-            error: parentError.message || "Không thể kiểm tra danh mục cha",
-          };
-        }
-
-        if (!parentCategory.is_active) {
-          return {
-            success: false,
-            error: "Không thể chuyển vào danh mục cha đã bị vô hiệu hóa",
-          };
-        }
-
-        // Check for circular reference (prevent category from being parent of itself or its descendants)
-        if (updateFields.parentId === categoryId) {
-          return {
-            success: false,
-            error: "Danh mục không thể là cha của chính nó",
-          };
-        }
-
-        // Check if current category is an ancestor of the new parent
-        let currentParentId: number | null = updateFields.parentId;
-        const maxDepth = 10; // Prevent infinite loop
-        let depth = 0;
-
-        while (currentParentId && depth < maxDepth) {
-          if (currentParentId === categoryId) {
-            return {
-              success: false,
-              error: "Không thể tạo vòng lặp trong cây danh mục",
-            };
-          }
-
-          const { data: parentCheck, error: parentCheckError }: {
-            data: Pick<Category, "parent_id"> | null;
-            error: Error | null;
-          } = await supabase
-            .from("categories")
-            .select("parent_id")
-            .eq("id", currentParentId)
-            .single();
-
-          if (parentCheckError || !parentCheck) break;
-          
-          currentParentId = parentCheck.parent_id;
-          depth++;
-        }
-      }
-    }
-
-    // 8. Check for products and subcategories before deactivating
+    // 7. Check for products before deactivating
     if (updateFields.isActive === false && existingCategory.is_active) {
       // Check for active products in this category
       const { data: activeProducts, error: productsError } = await supabase
@@ -230,26 +161,9 @@ export async function updateCategory(data: UpdateCategoryData): Promise<UpdateCa
           error: `Không thể vô hiệu hóa danh mục này vì có ${activeProducts.length} sản phẩm đang hoạt động: ${productNames}`,
         };
       }
-
-      // Check for active subcategories
-      const { data: activeSubcategories, error: subcatError } = await supabase
-        .from("categories")
-        .select("id, name")
-        .eq("parent_id", categoryId)
-        .eq("is_active", true);
-
-      if (subcatError) {
-        console.error("Error checking subcategories:", subcatError);
-      } else if (activeSubcategories && activeSubcategories.length > 0) {
-        const subcatNames = activeSubcategories.map(c => c.name).join(", ");
-        return {
-          success: false,
-          error: `Không thể vô hiệu hóa danh mục này vì có ${activeSubcategories.length} danh mục con đang hoạt động: ${subcatNames}`,
-        };
-      }
     }
 
-    // 9. Prepare update data
+    // 8. Prepare update data
     const updateData: Record<string, string | number | boolean | null> = {
       updated_at: new Date().toISOString(),
     };
@@ -259,11 +173,10 @@ export async function updateCategory(data: UpdateCategoryData): Promise<UpdateCa
     if (updateFields.slug !== undefined) updateData.slug = updateFields.slug;
     if (updateFields.description !== undefined) updateData.description = updateFields.description || null;
     if (updateFields.imageUrl !== undefined) updateData.image_url = updateFields.imageUrl || null;
-    if (updateFields.parentId !== undefined) updateData.parent_id = updateFields.parentId || null;
     if (updateFields.sortOrder !== undefined) updateData.sort_order = updateFields.sortOrder;
     if (updateFields.isActive !== undefined) updateData.is_active = updateFields.isActive;
 
-    // 10. Update category
+    // 9. Update category
     const { data: updatedCategory, error: updateError } = await supabase
       .from("categories")
       .update(updateData)

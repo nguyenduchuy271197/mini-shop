@@ -134,7 +134,6 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           name: string
-          parent_id: number | null
           slug: string
           sort_order: number
           updated_at: string
@@ -146,7 +145,6 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           name: string
-          parent_id?: number | null
           slug: string
           sort_order?: number
           updated_at?: string
@@ -158,20 +156,11 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           name?: string
-          parent_id?: number | null
           slug?: string
           sort_order?: number
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "categories_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       coupons: {
         Row: {
@@ -669,6 +658,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_admin_role: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
       authorize: {
         Args: {
           requested_permission: Database["public"]["Enums"]["app_permission"]

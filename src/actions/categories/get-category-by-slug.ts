@@ -11,11 +11,9 @@ const getCategoryBySlugSchema = z.object({
 
 type GetCategoryBySlugData = z.infer<typeof getCategoryBySlugSchema>;
 
-// Extended category type with product count and parent info
+// Extended category type with product count
 type CategoryWithDetails = Category & {
   product_count?: number;
-  parent?: Pick<Category, "id" | "name" | "slug"> | null;
-  children?: Pick<Category, "id" | "name" | "slug">[];
 };
 
 // Return type
@@ -31,17 +29,10 @@ export async function getCategoryBySlug(data: GetCategoryBySlugData): Promise<Ge
     // 2. Create Supabase client
     const supabase = createClient();
 
-    // 3. Get category by slug with parent information
+    // 3. Get category by slug
     const { data: category, error: categoryError } = await supabase
       .from("categories")
-      .select(`
-        *,
-        parent:categories!parent_id (
-          id,
-          name,
-          slug
-        )
-      `)
+      .select("*")
       .eq("slug", slug)
       .eq("is_active", true)
       .single();
@@ -77,23 +68,10 @@ export async function getCategoryBySlug(data: GetCategoryBySlugData): Promise<Ge
       console.error("Error counting products:", countError);
     }
 
-    // 5. Get child categories
-    const { data: children, error: childrenError } = await supabase
-      .from("categories")
-      .select("id, name, slug")
-      .eq("parent_id", category.id)
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
-
-    if (childrenError) {
-      console.error("Error fetching child categories:", childrenError);
-    }
-
-    // 6. Combine all data
+    // 5. Combine all data
     const categoryWithDetails: CategoryWithDetails = {
       ...category,
       product_count: productCount || 0,
-      children: children || [],
     };
 
     return {

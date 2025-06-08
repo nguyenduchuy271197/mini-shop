@@ -46,14 +46,12 @@ export function AdminDeleteCategoryDialog({
             Bạn có chắc chắn muốn xóa danh mục{" "}
             <strong>&ldquo;{category.name}&rdquo;</strong>? Hành động này không
             thể hoàn tác.
-            {category.parent_id === null && (
-              <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-md">
-                <p className="text-orange-800 text-sm">
-                  ⚠️ Đây là danh mục gốc. Tất cả danh mục con và sản phẩm liên
-                  quan sẽ được chuyển về trạng thái không có danh mục.
-                </p>
-              </div>
-            )}
+            <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-md">
+              <p className="text-orange-800 text-sm">
+                ⚠️ Tất cả sản phẩm trong danh mục này sẽ được chuyển về trạng
+                thái không có danh mục.
+              </p>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

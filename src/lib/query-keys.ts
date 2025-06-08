@@ -14,7 +14,6 @@ type ReportFilters = {
 };
 
 type AdminCategoryFilters = {
-  parentId?: number | null;
   isActive?: boolean;
   searchTerm?: string;
   includeTree?: boolean;

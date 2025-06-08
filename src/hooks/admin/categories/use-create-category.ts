@@ -11,7 +11,6 @@ interface CreateCategoryData {
   slug: string;
   description?: string;
   imageUrl?: string;
-  parentId?: number;
   sortOrder?: number;
   isActive?: boolean;
 }
@@ -25,9 +24,7 @@ function isClientError(error: Error): boolean {
   return error.message.includes("đã được sử dụng") || 
          error.message.includes("không hợp lệ") ||
          error.message.includes("ít nhất") ||
-         error.message.includes("tối đa") ||
-         error.message.includes("không tìm thấy danh mục cha") ||
-         error.message.includes("đã bị vô hiệu hóa");
+         error.message.includes("tối đa");
 }
 
 export function useCreateCategory(options: UseCreateCategoryOptions = {}) {
@@ -50,7 +47,7 @@ export function useCreateCategory(options: UseCreateCategoryOptions = {}) {
       
       return result;
     },
-    onSuccess: (result, variables) => {
+    onSuccess: (result) => {
       // Invalidate and refetch admin categories
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.admin.categories.all,
@@ -60,13 +57,6 @@ export function useCreateCategory(options: UseCreateCategoryOptions = {}) {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.categories.all,
       });
-
-      // If category has parent, invalidate parent's children
-      if (variables.parentId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.categories.detail(`parent-${variables.parentId}`),
-        });
-      }
 
       toast({
         title: "Thành công",

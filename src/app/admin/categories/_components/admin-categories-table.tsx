@@ -10,7 +10,6 @@ import { AdminCategoriesTableFilters } from "./admin-categories-table-filters";
 interface CategoriesFilters {
   searchTerm?: string;
   isActive?: boolean;
-  parentId?: number | null;
 }
 
 export function AdminCategoriesTable() {
@@ -61,9 +60,6 @@ export function AdminCategoriesTable() {
                 Slug
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Danh mục cha
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Trạng thái
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -83,7 +79,7 @@ export function AdminCategoriesTable() {
             ) : categoriesData?.categories.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={6}
                   className="px-6 py-12 text-center text-gray-500"
                 >
                   <div className="flex flex-col items-center">

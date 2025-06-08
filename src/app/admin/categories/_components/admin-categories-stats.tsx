@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Folder, FolderOpen, Eye } from "lucide-react";
+import { Folder, Eye, Hash, Calendar } from "lucide-react";
 
 export async function AdminCategoriesStats() {
   const supabase = createClient();
@@ -8,8 +8,7 @@ export async function AdminCategoriesStats() {
   const [
     { count: totalCategories },
     { count: activeCategories },
-    { count: parentCategories },
-    { count: childCategories },
+    { count: inactiveCategories },
   ] = await Promise.all([
     supabase.from("categories").select("*", { count: "exact", head: true }),
     supabase
@@ -19,18 +18,14 @@ export async function AdminCategoriesStats() {
     supabase
       .from("categories")
       .select("*", { count: "exact", head: true })
-      .is("parent_id", null),
-    supabase
-      .from("categories")
-      .select("*", { count: "exact", head: true })
-      .not("parent_id", "is", null),
+      .eq("is_active", false),
   ]);
 
   const stats = [
     {
       title: "Tổng danh mục",
       value: totalCategories || 0,
-      icon: Folder,
+      icon: Hash,
       color: "bg-blue-500",
     },
     {
@@ -40,16 +35,18 @@ export async function AdminCategoriesStats() {
       color: "bg-green-500",
     },
     {
-      title: "Danh mục cha",
-      value: parentCategories || 0,
-      icon: FolderOpen,
-      color: "bg-purple-500",
-    },
-    {
-      title: "Danh mục con",
-      value: childCategories || 0,
+      title: "Tạm dừng",
+      value: inactiveCategories || 0,
       icon: Folder,
       color: "bg-orange-500",
+    },
+    {
+      title: "Tỉ lệ hoạt động",
+      value: totalCategories
+        ? `${Math.round(((activeCategories || 0) / totalCategories) * 100)}%`
+        : "0%",
+      icon: Calendar,
+      color: "bg-purple-500",
     },
   ];
 

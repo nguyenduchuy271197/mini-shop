@@ -71,18 +71,6 @@ export function AdminCategoriesTableRow({
           </code>
         </td>
 
-        {/* Parent Category */}
-        <td className="px-6 py-4">
-          {category.parent_id ? (
-            <span className="text-sm text-gray-600">
-              {/* TODO: Show parent category name */}
-              Danh mục con
-            </span>
-          ) : (
-            <span className="text-sm text-gray-400">Danh mục gốc</span>
-          )}
-        </td>
-
         {/* Status */}
         <td className="px-6 py-4">
           <Badge variant={category.is_active ? "default" : "secondary"}>
