@@ -149,7 +149,7 @@ export function AdminProductsTableRow({
         <td className="px-6 py-4">
           <div className="flex flex-col gap-1">
             <span
-              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+              className={`inline-flex justify-center items-center px-2 py-1 text-xs font-semibold rounded-full ${
                 product.is_active
                   ? "bg-green-100 text-green-800"
                   : "bg-gray-100 text-gray-800"
@@ -158,7 +158,7 @@ export function AdminProductsTableRow({
               {product.is_active ? "Đang bán" : "Tạm dừng"}
             </span>
             {product.is_featured && (
-              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+              <span className="inline-flex justify-center items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                 Nổi bật
               </span>
             )}
