@@ -20,12 +20,13 @@ import {
 } from "@/components/ui/card";
 import { Loader2, Save } from "lucide-react";
 import { useProfile, useUpdateProfile } from "@/hooks/users";
+import { GenderType } from "@/types/custom.types";
 
 interface FormData {
   full_name: string;
   phone: string;
   date_of_birth: string;
-  gender: "male" | "female" | "other" | "";
+  gender: GenderType | "";
 }
 
 interface FormErrors {
@@ -56,7 +57,7 @@ export default function ProfileForm() {
         full_name: profile.full_name || "",
         phone: profile.phone || "",
         date_of_birth: profile.date_of_birth || "",
-        gender: (profile.gender as "male" | "female" | "other") || "",
+        gender: (profile.gender as GenderType) || "",
       });
     }
   }, [profileData]);
@@ -103,7 +104,7 @@ export default function ProfileForm() {
       full_name?: string;
       phone?: string;
       date_of_birth?: string;
-      gender?: "male" | "female" | "other";
+      gender?: GenderType;
     } = {};
 
     if (formData.full_name.trim()) {
@@ -141,7 +142,7 @@ export default function ProfileForm() {
   const handleGenderChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      gender: value as "male" | "female" | "other" | "",
+      gender: value as GenderType | "",
     }));
   };
 

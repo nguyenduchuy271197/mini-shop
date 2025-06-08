@@ -16,7 +16,7 @@ const updateProfileSchema = z.object({
     const age = now.getFullYear() - parsedDate.getFullYear();
     return age >= 13 && age <= 120;
   }, "Ngày sinh không hợp lệ").optional().or(z.literal("")),
-  gender: z.enum(["male", "female", "other"]).optional(),
+  gender: z.enum(["male", "female", "other"] as const).optional(),
 });
 
 type UpdateProfileData = z.infer<typeof updateProfileSchema>;

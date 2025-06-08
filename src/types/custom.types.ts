@@ -63,6 +63,7 @@ export type RolePermissionUpdateDto = UpdateDto<"role_permissions">;
 // Enum types based on database schema
 export type AppRole = Database["public"]["Enums"]["app_role"];
 export type AppPermission = Database["public"]["Enums"]["app_permission"];
+export type GenderType = Database["public"]["Enums"]["gender_type"];
 
 // Order status types from database schema
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';

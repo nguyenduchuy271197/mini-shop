@@ -493,7 +493,7 @@ export type Database = {
           date_of_birth: string | null
           email: string
           full_name: string | null
-          gender: string | null
+          gender: Database["public"]["Enums"]["gender_type"] | null
           id: string
           phone: string | null
           updated_at: string
@@ -504,7 +504,7 @@ export type Database = {
           date_of_birth?: string | null
           email: string
           full_name?: string | null
-          gender?: string | null
+          gender?: Database["public"]["Enums"]["gender_type"] | null
           id: string
           phone?: string | null
           updated_at?: string
@@ -515,7 +515,7 @@ export type Database = {
           date_of_birth?: string | null
           email?: string
           full_name?: string | null
-          gender?: string | null
+          gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           phone?: string | null
           updated_at?: string
@@ -710,6 +710,7 @@ export type Database = {
         | "coupons.update"
         | "coupons.delete"
       app_role: "customer" | "admin"
+      gender_type: "male" | "female" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -861,6 +862,7 @@ export const Constants = {
         "coupons.delete",
       ],
       app_role: ["customer", "admin"],
+      gender_type: ["male", "female", "other"],
     },
   },
 } as const

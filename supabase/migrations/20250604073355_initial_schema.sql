@@ -47,6 +47,9 @@ create type public.app_permission as enum (
 
 create type public.app_role as enum ('customer', 'admin');
 
+-- gender enum type
+create type public.gender_type as enum ('male', 'female', 'other');
+
 -- user roles table - tracks which role each user has
 create table public.user_roles (
   id bigint generated always as identity primary key,
@@ -79,7 +82,7 @@ create table public.profiles (
   phone text,
   avatar_url text,
   date_of_birth date,
-  gender text check (gender in ('male', 'female', 'other')),
+  gender public.gender_type,
   created_at timestamp with time zone default now() not null,
   updated_at timestamp with time zone default now() not null
 );

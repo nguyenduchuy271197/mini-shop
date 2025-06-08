@@ -3,11 +3,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { exportCustomers } from "@/actions/admin/users/export-customers";
 import { useToast } from "@/hooks/use-toast";
+import { GenderType } from "@/types/custom.types";
 
 interface ExportCustomersFilters {
   search?: string;
   isActive?: boolean;
-  gender?: "male" | "female" | "other";
+  gender?: GenderType;
   hasOrders?: boolean;
   registeredAfter?: string;
   registeredBefore?: string;

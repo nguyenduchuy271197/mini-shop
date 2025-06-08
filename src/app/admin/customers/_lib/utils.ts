@@ -1,5 +1,6 @@
 import { CustomerInfo } from "@/hooks/admin/users";
 import { formatCurrency } from "@/lib/utils";
+import { GenderType } from "@/types/custom.types";
 
 // Utility functions cho Customer Management
 
@@ -29,7 +30,7 @@ export function formatCustomerJoinDate(dateString: string): string {
   });
 }
 
-export function getGenderDisplayText(gender?: string | null): string {
+export function getGenderDisplayText(gender?: GenderType | null): string {
   switch (gender) {
     case "male":
       return "Nam";

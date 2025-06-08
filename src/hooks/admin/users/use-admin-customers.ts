@@ -3,12 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import { getCustomers } from "@/actions/admin/users/get-customers";
-import { Profile } from "@/types/custom.types";
+import { Profile, GenderType } from "@/types/custom.types";
 
 interface CustomerFilters {
   search?: string;
   isActive?: boolean;
-  gender?: "male" | "female" | "other";
+  gender?: GenderType;
   hasOrders?: boolean;
   registeredAfter?: string;
   registeredBefore?: string;

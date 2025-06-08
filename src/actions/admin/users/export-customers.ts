@@ -7,7 +7,7 @@ import { z } from "zod";
 const exportCustomersFiltersSchema = z.object({
   search: z.string().optional(),
   isActive: z.boolean().optional(),
-  gender: z.enum(["male", "female", "other"]).optional(),
+  gender: z.enum(["male", "female", "other"] as const).optional(),
   hasOrders: z.boolean().optional(),
   registeredAfter: z.string().optional(), // ISO date string
   registeredBefore: z.string().optional(), // ISO date string
