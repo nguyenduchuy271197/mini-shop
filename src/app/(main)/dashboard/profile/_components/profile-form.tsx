@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -18,87 +20,77 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Loader2, Save } from "lucide-react";
 import { useProfile, useUpdateProfile } from "@/hooks/users";
 import { GenderType } from "@/types/custom.types";
 
-interface FormData {
-  full_name: string;
-  phone: string;
-  date_of_birth: string;
-  gender: GenderType | "";
-}
+// Validation schema
+const profileFormSchema = z.object({
+  full_name: z
+    .string()
+    .min(2, "Họ tên phải có ít nhất 2 ký tự")
+    .max(50, "Họ tên không được quá 50 ký tự"),
+  phone: z
+    .string()
+    .regex(/^[0-9+\-\s()]*$/, "Số điện thoại không hợp lệ")
+    .optional(),
+  date_of_birth: z
+    .string()
+    .optional()
+    .refine((date) => {
+      if (!date) return true;
+      const parsedDate = new Date(date);
+      const now = new Date();
+      const age = now.getFullYear() - parsedDate.getFullYear();
+      return !isNaN(parsedDate.getTime()) && age >= 13 && age <= 120;
+    }, "Ngày sinh không hợp lệ"),
+  gender: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || ["male", "female", "other"].includes(value),
+      "Giới tính không hợp lệ"
+    ),
+});
 
-interface FormErrors {
-  full_name?: string;
-  phone?: string;
-  date_of_birth?: string;
-  gender?: string;
-}
+type ProfileFormData = z.infer<typeof profileFormSchema>;
 
 export default function ProfileForm() {
   const { data: profileData, isLoading: isLoadingProfile } = useProfile();
   const updateProfile = useUpdateProfile();
 
-  const [formData, setFormData] = useState<FormData>({
-    full_name: "",
-    phone: "",
-    date_of_birth: "",
-    gender: "",
+  const form = useForm<ProfileFormData>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      full_name: "",
+      phone: "",
+      date_of_birth: "",
+      gender: "",
+    },
   });
-
-  const [errors, setErrors] = useState<FormErrors>({});
 
   // Load profile data when available
   useEffect(() => {
     if (profileData?.success && profileData.profile) {
       const profile = profileData.profile;
-      setFormData({
+      form.reset({
         full_name: profile.full_name || "",
         phone: profile.phone || "",
         date_of_birth: profile.date_of_birth || "",
         gender: (profile.gender as GenderType) || "",
       });
     }
-  }, [profileData]);
+  }, [profileData, form]);
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // Validate full name
-    if (!formData.full_name.trim()) {
-      newErrors.full_name = "Họ tên là bắt buộc";
-    } else if (formData.full_name.trim().length < 2) {
-      newErrors.full_name = "Họ tên phải có ít nhất 2 ký tự";
-    }
-
-    // Validate phone (optional but must be valid if provided)
-    if (formData.phone && !/^[0-9+\-\s()]+$/.test(formData.phone)) {
-      newErrors.phone = "Số điện thoại không hợp lệ";
-    }
-
-    // Validate date of birth (optional but must be valid if provided)
-    if (formData.date_of_birth) {
-      const date = new Date(formData.date_of_birth);
-      const now = new Date();
-      const age = now.getFullYear() - date.getFullYear();
-
-      if (isNaN(date.getTime()) || age < 13 || age > 120) {
-        newErrors.date_of_birth = "Ngày sinh không hợp lệ";
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const onSubmit = async (data: ProfileFormData) => {
     // Only send non-empty values
     const updateData: {
       full_name?: string;
@@ -107,43 +99,23 @@ export default function ProfileForm() {
       gender?: GenderType;
     } = {};
 
-    if (formData.full_name.trim()) {
-      updateData.full_name = formData.full_name.trim();
+    if (data.full_name?.trim()) {
+      updateData.full_name = data.full_name.trim();
     }
-    if (formData.phone.trim()) {
-      updateData.phone = formData.phone.trim();
+    if (data.phone?.trim()) {
+      updateData.phone = data.phone.trim();
     }
-    if (formData.date_of_birth) {
-      updateData.date_of_birth = formData.date_of_birth;
+    if (data.date_of_birth?.trim()) {
+      updateData.date_of_birth = data.date_of_birth;
     }
-    if (formData.gender !== "") {
-      updateData.gender = formData.gender;
+    if (
+      data.gender?.trim() &&
+      ["male", "female", "other"].includes(data.gender)
+    ) {
+      updateData.gender = data.gender as GenderType;
     }
 
     updateProfile.mutate(updateData);
-  };
-
-  const handleInputChange =
-    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: e.target.value,
-      }));
-
-      // Clear error when user starts typing
-      if (errors[field]) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: undefined,
-        }));
-      }
-    };
-
-  const handleGenderChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      gender: value as GenderType | "",
-    }));
   };
 
   if (isLoadingProfile) {
@@ -164,87 +136,109 @@ export default function ProfileForm() {
         <CardDescription>Cập nhật thông tin cá nhân của bạn</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="full_name">Họ và tên *</Label>
-            <Input
-              id="full_name"
-              type="text"
-              value={formData.full_name}
-              onChange={handleInputChange("full_name")}
-              placeholder="Nhập họ và tên của bạn"
-              disabled={updateProfile.isPending}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="full_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Họ và tên *</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nhập họ và tên của bạn"
+                      disabled={updateProfile.isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.full_name && (
-              <p className="text-sm text-red-600">{errors.full_name}</p>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Số điện thoại</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handleInputChange("phone")}
-              placeholder="Nhập số điện thoại"
-              disabled={updateProfile.isPending}
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Số điện thoại</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="tel"
+                      placeholder="Nhập số điện thoại"
+                      disabled={updateProfile.isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.phone && (
-              <p className="text-sm text-red-600">{errors.phone}</p>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="date_of_birth">Ngày sinh</Label>
-            <Input
-              id="date_of_birth"
-              type="date"
-              value={formData.date_of_birth}
-              onChange={handleInputChange("date_of_birth")}
-              disabled={updateProfile.isPending}
+            <FormField
+              control={form.control}
+              name="date_of_birth"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ngày sinh</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      disabled={updateProfile.isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.date_of_birth && (
-              <p className="text-sm text-red-600">{errors.date_of_birth}</p>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="gender">Giới tính</Label>
-            <Select
-              value={formData.gender}
-              onValueChange={handleGenderChange}
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Giới tính</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={updateProfile.isPending}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn giới tính" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="male">Nam</SelectItem>
+                      <SelectItem value="female">Nữ</SelectItem>
+                      <SelectItem value="other">Khác</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="w-full"
               disabled={updateProfile.isPending}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn giới tính" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="male">Nam</SelectItem>
-                <SelectItem value="female">Nữ</SelectItem>
-                <SelectItem value="other">Khác</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={updateProfile.isPending}
-          >
-            {updateProfile.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Đang cập nhật...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Lưu thay đổi
-              </>
-            )}
-          </Button>
-        </form>
+              {updateProfile.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang cập nhật...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Lưu thay đổi
+                </>
+              )}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
