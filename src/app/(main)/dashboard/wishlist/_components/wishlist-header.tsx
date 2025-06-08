@@ -2,10 +2,11 @@
 
 import { Heart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useClearWishlist } from "@/hooks/wishlists";
+import { useClearWishlist, useWishlist } from "@/hooks/wishlists";
 
 export default function WishlistHeader() {
   const clearWishlist = useClearWishlist();
+  const { data: wishlistData } = useWishlist();
 
   const handleClearWishlist = () => {
     if (
@@ -16,6 +17,12 @@ export default function WishlistHeader() {
       clearWishlist.mutate({ confirm: true });
     }
   };
+
+  // Get wishlist items count
+  const wishlistItems = wishlistData?.success
+    ? wishlistData.wishlist || []
+    : [];
+  const hasWishlistItems = wishlistItems.length > 0;
 
   return (
     <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -33,18 +40,20 @@ export default function WishlistHeader() {
         </div>
       </div>
 
-      <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
-        <Button
-          variant="outline"
-          onClick={handleClearWishlist}
-          disabled={clearWishlist.isPending}
-          className="inline-flex items-center justify-center text-red-600 hover:text-red-700"
-          size="sm"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          {clearWishlist.isPending ? "Đang xóa..." : "Xóa tất cả"}
-        </Button>
-      </div>
+      {hasWishlistItems && (
+        <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
+          <Button
+            variant="outline"
+            onClick={handleClearWishlist}
+            disabled={clearWishlist.isPending}
+            className="inline-flex items-center justify-center text-red-600 hover:text-red-700"
+            size="sm"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {clearWishlist.isPending ? "Đang xóa..." : "Xóa tất cả"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

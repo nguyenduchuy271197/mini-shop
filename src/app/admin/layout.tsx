@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
@@ -34,7 +34,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
     .single();
 
   if (roleError || !userRole || userRole.role !== "admin") {
-    redirect("/dashboard"); // Redirect về customer dashboard nếu không phải admin
+    notFound();
   }
 
   return (
