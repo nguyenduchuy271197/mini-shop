@@ -3,12 +3,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart, useCartTotal } from "@/hooks/cart";
+import { useCheckoutContext } from "./checkout-context";
 import Image from "next/image";
 import { Package } from "lucide-react";
 
 export default function CheckoutSummary() {
+  const { selectedShippingMethod } = useCheckoutContext();
   const { data: cartData, isLoading: cartLoading } = useCart();
-  const { data: cartTotalData, isLoading: totalLoading } = useCartTotal();
+  const { data: cartTotalData, isLoading: totalLoading } = useCartTotal({
+    shippingMethod: selectedShippingMethod,
+  });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -115,8 +119,14 @@ export default function CheckoutSummary() {
 
             <div className="flex justify-between text-sm">
               <span>Phí vận chuyển</span>
-              <span className="text-green-600">
-                Sẽ được tính khi chọn phương thức
+              <span
+                className={
+                  cartBreakdown.shippingCost === 0 ? "text-green-600" : ""
+                }
+              >
+                {cartBreakdown.shippingCost === 0
+                  ? "Miễn phí"
+                  : formatPrice(cartBreakdown.shippingCost)}
               </span>
             </div>
 

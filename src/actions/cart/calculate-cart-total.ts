@@ -7,6 +7,7 @@ import { z } from "zod";
 // Validation schema
 const calculateCartTotalSchema = z.object({
   couponCode: z.string().optional(),
+  shippingMethod: z.string().optional(),
 });
 
 type CalculateCartTotalData = z.infer<typeof calculateCartTotalSchema>;
@@ -15,6 +16,7 @@ type CalculateCartTotalData = z.infer<typeof calculateCartTotalSchema>;
 type CartTotalBreakdown = {
   subtotal: number;
   discountAmount: number;
+  shippingCost: number;
   total: number;
   appliedCoupon?: Pick<Coupon, "id" | "code" | "name" | "type" | "value"> | null;
 };
@@ -27,7 +29,7 @@ type CalculateCartTotalResult =
 export async function calculateCartTotal(data?: CalculateCartTotalData): Promise<CalculateCartTotalResult> {
   try {
     // 1. Validate input
-    const { couponCode } = data ? calculateCartTotalSchema.parse(data) : { couponCode: undefined };
+    const { couponCode, shippingMethod } = data ? calculateCartTotalSchema.parse(data) : { couponCode: undefined, shippingMethod: undefined };
 
     // 2. Create Supabase client
     const supabase = createClient();
@@ -71,6 +73,7 @@ export async function calculateCartTotal(data?: CalculateCartTotalData): Promise
         breakdown: {
           subtotal: 0,
           discountAmount: 0,
+          shippingCost: 0,
           total: 0,
         },
       };
@@ -92,6 +95,7 @@ export async function calculateCartTotal(data?: CalculateCartTotalData): Promise
         breakdown: {
           subtotal: 0,
           discountAmount: 0,
+          shippingCost: 0,
           total: 0,
         },
       };
@@ -178,12 +182,33 @@ export async function calculateCartTotal(data?: CalculateCartTotalData): Promise
       };
     }
 
-    // 7. Calculate final total
-    const total = Math.max(0, subtotal - discountAmount);
+    // 7. Calculate shipping cost
+    let shippingCost = 0;
+    const FREE_SHIPPING_THRESHOLD = 500000; // 500,000 VND
+
+    // Only calculate shipping if a shipping method is explicitly provided (checkout flow)
+    // In cart view, shipping cost should be 0 since user hasn't selected shipping method yet
+    if (shippingMethod) {
+      // Only calculate shipping if not eligible for free shipping
+      if (subtotal < FREE_SHIPPING_THRESHOLD) {
+        // Define shipping costs based on method
+        const shippingRates = {
+          standard: 30000,
+          express: 50000,
+          same_day: 80000,
+        };
+
+        shippingCost = shippingRates[shippingMethod as keyof typeof shippingRates] || shippingRates.standard;
+      }
+    }
+
+    // 8. Calculate final total
+    const total = Math.max(0, subtotal - discountAmount + shippingCost);
 
     const breakdown: CartTotalBreakdown = {
       subtotal,
       discountAmount,
+      shippingCost,
       total,
       appliedCoupon,
     };

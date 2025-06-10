@@ -12,13 +12,18 @@ import AddressSelection from "./address-selection";
 import PaymentMethodSelector from "./payment-method-selector";
 import OrderNotes from "./order-notes";
 import ShippingMethodSelection from "./shipping-method-selection";
+import { useCheckoutContext } from "./checkout-context";
 import type { AddressData, PaymentMethod } from "@/types/custom.types";
 
 export default function CheckoutForm() {
   const router = useRouter();
   const { toast } = useToast();
+  const { selectedShippingMethod, setSelectedShippingMethod } =
+    useCheckoutContext();
   const { data: cartData } = useCart();
-  const { data: cartTotalData } = useCartTotal();
+  const { data: cartTotalData } = useCartTotal({
+    shippingMethod: selectedShippingMethod,
+  });
   const createOrder = useCreateOrder();
   const createStripeCheckout = useCreateStripeCheckout();
 
@@ -27,8 +32,6 @@ export default function CheckoutForm() {
   const [selectedBillingAddress, setSelectedBillingAddress] =
     useState<AddressData | null>(null);
   const [useSameAddress, setUseSameAddress] = useState(true);
-  const [selectedShippingMethod, setSelectedShippingMethod] =
-    useState("standard");
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod>("stripe");
   const [orderNotes, setOrderNotes] = useState("");

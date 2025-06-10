@@ -6,8 +6,18 @@ import Stripe from "stripe";
 import { StripeCheckoutData, StripeSessionResponse } from "@/types/custom.types";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-05-28.basil",
 });
+
+// Helper function to get shipping method display name
+function getShippingMethodName(method: string): string {
+  const methodNames = {
+    standard: "Giao hàng tiêu chuẩn (2-3 ngày)",
+    express: "Giao hàng nhanh (1-2 ngày)", 
+    same_day: "Giao hàng trong ngày",
+  };
+  return methodNames[method as keyof typeof methodNames] || "Giao hàng tiêu chuẩn";
+}
 
 export async function createStripeCheckout(
   checkoutData: StripeCheckoutData
@@ -62,6 +72,38 @@ export async function createStripeCheckout(
         },
         quantity: item.quantity,
       }));
+
+    // Add shipping cost as a line item if applicable
+    const shippingMethod = checkoutData.metadata?.shippingMethod;
+    if (shippingMethod) {
+      // Calculate shipping cost based on order total and method
+      const orderSubtotal = order.order_items.reduce((sum: number, item: any) => sum + item.total_price, 0);
+      const FREE_SHIPPING_THRESHOLD = 500000; // 500,000 VND
+      
+      if (orderSubtotal < FREE_SHIPPING_THRESHOLD) {
+        const shippingRates = {
+          standard: 30000,
+          express: 50000,
+          same_day: 80000,
+        };
+        
+        const shippingCost = shippingRates[shippingMethod as keyof typeof shippingRates] || shippingRates.standard;
+        
+        if (shippingCost > 0) {
+          lineItems.push({
+            price_data: {
+              currency: checkoutData.currency.toLowerCase(),
+              product_data: {
+                name: getShippingMethodName(shippingMethod),
+                description: "Phí vận chuyển",
+              },
+              unit_amount: Math.round(shippingCost),
+            },
+            quantity: 1,
+          });
+        }
+      }
+    }
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({

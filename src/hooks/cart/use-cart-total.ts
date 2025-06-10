@@ -6,16 +6,21 @@ import { QUERY_KEYS } from "@/lib/query-keys";
 
 export type UseCartTotalOptions = {
   couponCode?: string;
+  shippingMethod?: string;
   enabled?: boolean;
 };
 
 export function useCartTotal(options: UseCartTotalOptions = {}) {
-  const { couponCode, enabled = true } = options;
+  const { couponCode, shippingMethod, enabled = true } = options;
 
   return useQuery({
-    queryKey: QUERY_KEYS.cart.total(),
+    queryKey: [...QUERY_KEYS.cart.total(), shippingMethod],
     queryFn: async () => {
-      const result = await calculateCartTotal(couponCode ? { couponCode } : undefined);
+      const params: any = {};
+      if (couponCode) params.couponCode = couponCode;
+      if (shippingMethod) params.shippingMethod = shippingMethod;
+      
+      const result = await calculateCartTotal(Object.keys(params).length > 0 ? params : undefined);
       if (!result.success) {
         throw new Error(result.error);
       }

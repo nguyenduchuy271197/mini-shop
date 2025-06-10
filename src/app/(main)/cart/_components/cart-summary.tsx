@@ -123,7 +123,11 @@ export default function CartSummary() {
 
         <div className="flex justify-between text-sm">
           <span>Phí vận chuyển</span>
-          <span className="text-green-600">Miễn phí</span>
+          {cartTotal.subtotal >= 500000 ? (
+            <span className="text-green-600">Miễn phí</span>
+          ) : (
+            <span className="text-gray-500">Tính khi thanh toán</span>
+          )}
         </div>
 
         <div className="flex justify-between text-sm">
@@ -161,7 +165,9 @@ export default function CartSummary() {
         <h4 className="font-medium text-sm mb-2">Thông tin giao hàng</h4>
         <ul className="text-xs text-gray-600 space-y-1">
           <li>• Miễn phí vận chuyển cho đơn hàng từ 500.000₫</li>
-          <li>• Giao hàng trong 2-3 ngày làm việc</li>
+          <li>• Giao hàng tiêu chuẩn: 30.000₫ (2-3 ngày)</li>
+          <li>• Giao hàng nhanh: 50.000₫ (1-2 ngày)</li>
+          <li>• Giao hàng trong ngày: 80.000₫ (cùng ngày)</li>
           <li>• Hỗ trợ đổi trả trong 7 ngày</li>
         </ul>
       </div>
