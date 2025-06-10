@@ -63,16 +63,6 @@ export default function Header() {
 
           {/* Right Actions */}
           <div className="flex items-center space-x-4">
-            {/* Mobile Search Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden p-2"
-              onClick={() => router.push("/products")}
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-
             {/* Wishlist */}
             {isAuthenticated && (
               <Button
@@ -185,13 +175,9 @@ export default function Header() {
               ))}
 
               {!isAuthenticated && (
-                <div className="px-4 pt-4 space-y-2 border-t">
+                <div className="px-4 pt-4 border-t flex flex-col gap-2">
                   <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start"
-                    >
+                    <Button variant="outline" size="sm" className="w-full">
                       Đăng nhập
                     </Button>
                   </Link>

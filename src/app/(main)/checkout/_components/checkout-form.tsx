@@ -123,6 +123,7 @@ export default function CheckoutForm() {
           <ShippingMethodSelection
             selectedMethod={selectedShippingMethod}
             onMethodSelect={setSelectedShippingMethod}
+            cartSubtotal={cartData?.summary?.subtotal || 0}
           />
         </CardContent>
       </Card>

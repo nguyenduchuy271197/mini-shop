@@ -47,7 +47,7 @@ export default function CategoriesSection() {
           <CategoriesLoading />
         ) : data?.success && data.categories.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-6 mb-12">
               {data.categories.slice(0, 8).map((category) => (
                 <CategoryCard key={category.id} category={category} />
               ))}

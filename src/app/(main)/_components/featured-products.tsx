@@ -47,7 +47,7 @@ export default function FeaturedProducts() {
           <FeaturedProductsLoading />
         ) : data?.success && data.products.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-12">
               {data.products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
