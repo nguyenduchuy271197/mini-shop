@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 
 import {
   CreditCard,
-  Smartphone,
   Building2,
   Clock,
   CheckCircle,
@@ -30,16 +29,16 @@ const paymentMethodConfig = {
     description: "Thanh toán qua VNPay - Hỗ trợ thẻ ATM, Visa, Mastercard",
     color: "bg-blue-100 text-blue-800",
   },
-  momo: {
-    name: "Ví MoMo",
-    icon: <Smartphone className="w-6 h-6" />,
-    description: "Thanh toán qua ví điện tử MoMo",
-    color: "bg-pink-100 text-pink-800",
+  stripe: {
+    name: "Stripe",
+    icon: <CreditCard className="w-6 h-6" />,
+    description: "Thanh toán bằng thẻ tín dụng/ghi nợ",
+    color: "bg-purple-100 text-purple-800",
   },
-  bank_transfer: {
-    name: "Chuyển khoản ngân hàng",
+  cod: {
+    name: "Thanh toán khi nhận hàng",
     icon: <Building2 className="w-6 h-6" />,
-    description: "Chuyển khoản trực tiếp vào tài khoản ngân hàng",
+    description: "Thanh toán tiền mặt khi nhận hàng",
     color: "bg-green-100 text-green-800",
   },
 };
@@ -89,11 +88,7 @@ export default function PaymentContent({
     createPayment.mutate(
       {
         orderId: 1, // This should come from the actual order
-        paymentMethod: paymentMethod as
-          | "vnpay"
-          | "momo"
-          | "cod"
-          | "bank_transfer",
+        paymentMethod: paymentMethod as "vnpay" | "stripe" | "cod",
         amount: 100000, // This should come from the actual order total
         currency: "VND",
       },
@@ -101,13 +96,13 @@ export default function PaymentContent({
         onSuccess: (result) => {
           if (result.success) {
             // For online payment methods, redirect to payment gateway
-            if (paymentMethod === "vnpay" || paymentMethod === "momo") {
+            if (paymentMethod === "vnpay" || paymentMethod === "stripe") {
               // In real implementation, the result would contain paymentUrl
               const mockPaymentUrl = `https://payment-gateway.example.com/pay?order=${orderNumber}`;
               setPaymentUrl(mockPaymentUrl);
               // window.location.href = mockPaymentUrl;
             } else {
-              // For COD and bank transfer, mark as success
+              // For COD, mark as success
               setPaymentStatus("success");
             }
           } else {
@@ -299,41 +294,24 @@ export default function PaymentContent({
         </CardContent>
       </Card>
 
-      {/* Payment Instructions */}
-      {paymentMethod === "bank_transfer" && paymentStatus === "processing" && (
+      {/* COD Instructions */}
+      {paymentMethod === "cod" && paymentStatus === "processing" && (
         <Card>
           <CardHeader>
-            <CardTitle>Thông tin chuyển khoản</CardTitle>
+            <CardTitle>Hướng dẫn thanh toán COD</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-3 gap-4">
-                <span className="font-medium">Ngân hàng:</span>
-                <span className="col-span-2">Vietcombank</span>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <span className="font-medium">Số tài khoản:</span>
-                <span className="col-span-2 font-mono">1234567890</span>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <span className="font-medium">Chủ tài khoản:</span>
-                <span className="col-span-2">MINI SHOP</span>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <span className="font-medium">Chi nhánh:</span>
-                <span className="col-span-2">TP. Hồ Chí Minh</span>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <span className="font-medium">Nội dung:</span>
-                <span className="col-span-2 font-mono">DH{orderNumber}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
-              <p className="text-sm text-orange-700">
-                <strong>Lưu ý:</strong> Vui lòng ghi chính xác nội dung chuyển
-                khoản để chúng tôi có thể xác nhận thanh toán nhanh chóng.
+              <p className="text-gray-600">
+                Bạn sẽ thanh toán bằng tiền mặt khi nhận hàng.
               </p>
+              <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                <ul className="space-y-1 text-green-700">
+                  <li>✓ Kiểm tra hàng trước khi thanh toán</li>
+                  <li>✓ Chuẩn bị đủ tiền mặt</li>
+                  <li>✓ Nhận hóa đơn từ shipper</li>
+                </ul>
+              </div>
             </div>
           </CardContent>
         </Card>

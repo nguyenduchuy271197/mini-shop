@@ -122,11 +122,7 @@ export function AdminPaymentsFilters({
                 <SelectItem value="all">Tất cả phương thức</SelectItem>
                 <SelectItem value="stripe">Stripe</SelectItem>
                 <SelectItem value="vnpay">VNPay</SelectItem>
-                <SelectItem value="momo">MoMo</SelectItem>
                 <SelectItem value="cod">Thanh toán khi nhận hàng</SelectItem>
-                <SelectItem value="bank_transfer">
-                  Chuyển khoản ngân hàng
-                </SelectItem>
               </SelectContent>
             </Select>
           </div>

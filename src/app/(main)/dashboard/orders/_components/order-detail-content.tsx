@@ -394,10 +394,8 @@ export default function OrderDetailContent({
                     ? "Thanh toán khi nhận hàng"
                     : order.payment_method === "vnpay"
                     ? "VNPay"
-                    : order.payment_method === "momo"
-                    ? "Ví MoMo"
-                    : order.payment_method === "bank_transfer"
-                    ? "Chuyển khoản"
+                    : order.payment_method === "stripe"
+                    ? "Stripe"
                     : "Khác"}
                 </span>
               </div>

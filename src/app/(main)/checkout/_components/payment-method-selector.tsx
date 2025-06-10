@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CreditCard, Smartphone, Banknote, Building } from "lucide-react";
+import { CreditCard, Smartphone, Banknote } from "lucide-react";
 import { PaymentMethod } from "@/types/custom.types";
 
 interface PaymentMethodSelectorProps {
@@ -28,18 +28,6 @@ export default function PaymentMethodSelector({
       name: "VNPay",
       description: "Thanh toán qua ví điện tử VNPay",
       icon: Smartphone,
-    },
-    {
-      id: "momo" as PaymentMethod,
-      name: "MoMo",
-      description: "Thanh toán qua ví điện tử MoMo",
-      icon: Smartphone,
-    },
-    {
-      id: "bank_transfer" as PaymentMethod,
-      name: "Chuyển khoản ngân hàng",
-      description: "Chuyển khoản trực tiếp qua ngân hàng",
-      icon: Building,
     },
     {
       id: "cod" as PaymentMethod,
@@ -108,6 +96,18 @@ export default function PaymentMethodSelector({
             <p className="text-sm text-blue-600 mt-1">
               Thông tin thẻ của bạn được mã hóa và bảo mật tuyệt đối. Chúng tôi
               không lưu trữ thông tin thẻ.
+            </p>
+          </div>
+        )}
+
+        {selectedMethod === "vnpay" && (
+          <div className="mt-4 p-4 bg-green-50 rounded-lg">
+            <div className="flex items-center gap-2 text-green-700">
+              <Smartphone className="h-4 w-4" />
+              <span className="text-sm font-medium">Thanh toán VNPay</span>
+            </div>
+            <p className="text-sm text-green-600 mt-1">
+              Thanh toán nhanh chóng và an toàn qua ví điện tử VNPay.
             </p>
           </div>
         )}

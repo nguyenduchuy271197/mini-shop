@@ -7,7 +7,7 @@ import { z } from "zod";
 // Validation schema
 const createPaymentSchema = z.object({
   orderId: z.number().positive("ID đơn hàng không hợp lệ"),
-  paymentMethod: z.enum(["vnpay", "momo", "cod", "bank_transfer"], {
+  paymentMethod: z.enum(["vnpay", "cod", "stripe"], {
     required_error: "Phương thức thanh toán là bắt buộc",
     invalid_type_error: "Phương thức thanh toán không hợp lệ",
   }),
@@ -198,11 +198,9 @@ export async function createPayment(data: CreatePaymentData): Promise<CreatePaym
       case "vnpay":
         paymentUrl = await generateVnpayUrl(payment, order);
         break;
-      case "momo":
-        paymentUrl = await generateMomoUrl(payment);
-        break;
-      case "bank_transfer":
-        paymentInstructions = await generateBankTransferInstructions(payment, order);
+      case "stripe":
+        // Stripe payment URL will be handled separately in checkout flow
+        paymentInstructions = "Chuyển hướng đến Stripe để thanh toán";
         break;
       case "cod":
         paymentInstructions = await generateCodInstructions(payment);
@@ -249,10 +247,8 @@ function getDefaultProvider(paymentMethod: string): string {
   switch (paymentMethod) {
     case "vnpay":
       return "vnpay_gateway";
-    case "momo":
-      return "momo_wallet";
-    case "bank_transfer":
-      return "manual_bank_transfer";
+    case "stripe":
+      return "stripe_checkout";
     case "cod":
       return "cash_on_delivery";
     default:
@@ -284,32 +280,7 @@ async function generateVnpayUrl(payment: Payment, order: Order): Promise<string>
   return `${baseUrl}?${params.toString()}`;
 }
 
-/**
- * Generate MoMo payment URL
- */
-async function generateMomoUrl(payment: Payment): Promise<string> {
-  // Mock MoMo URL generation - replace with actual MoMo integration
-  const baseUrl = process.env.MOMO_URL || "https://test-payment.momo.vn/v2/gateway/api/create";
-  
-  // In real implementation, make API call to MoMo to get payment URL
-  return `${baseUrl}?orderId=${payment.transaction_id}&amount=${payment.amount}`;
-}
 
-/**
- * Generate bank transfer instructions
- */
-async function generateBankTransferInstructions(payment: Payment, order: Order): Promise<string> {
-  return `
-Thông tin chuyển khoản:
-- Ngân hàng: Vietcombank
-- Số tài khoản: 1234567890
-- Chủ tài khoản: CÔNG TY MINI SHOP
-- Số tiền: ${payment.amount.toLocaleString('vi-VN')}₫
-- Nội dung: ${payment.transaction_id} ${order.order_number}
-
-Lưu ý: Vui lòng chuyển khoản đúng số tiền và ghi đúng nội dung để đơn hàng được xử lý nhanh chóng.
-  `.trim();
-}
 
 /**
  * Generate COD instructions

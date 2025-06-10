@@ -54,15 +54,18 @@ export default function SuccessContent({
 
       // Clear cart for COD payments since no webhook will do it
       if (!cartCleared) {
-        clearCart.mutate(undefined, {
-          onSuccess: () => {
-            setCartCleared(true);
-            console.log("Cart cleared for COD payment");
-          },
-          onError: (error) => {
-            console.error("Failed to clear cart for COD:", error);
-          },
-        });
+        clearCart.mutate(
+          { silent: true },
+          {
+            onSuccess: () => {
+              setCartCleared(true);
+              console.log("Cart cleared for COD payment");
+            },
+            onError: (error) => {
+              console.error("Failed to clear cart for COD:", error);
+            },
+          }
+        );
       }
       return;
     }
@@ -77,16 +80,16 @@ export default function SuccessContent({
       }
       // Keep pending for other statuses
     }
-  }, [sessionId, paymentStatusData, cartCleared, clearCart]);
+  }, [sessionId, paymentStatusData, cartCleared]);
 
   const getStatusIcon = () => {
     if (sessionId && verificationStatus === "pending") {
-      return <Clock className="h-12 w-12 text-yellow-500" />;
+      return <Clock className="h-12 w-12 text-yellow-500 mx-auto" />;
     }
     if (verificationStatus === "success") {
-      return <CheckCircle className="h-12 w-12 text-green-500" />;
+      return <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />;
     }
-    return <XCircle className="h-12 w-12 text-red-500" />;
+    return <XCircle className="h-12 w-12 text-red-500 mx-auto" />;
   };
 
   const getStatusMessage = () => {
@@ -177,8 +180,6 @@ export default function SuccessContent({
                     ? "Thanh toán khi nhận hàng"
                     : order.payments?.[0]?.payment_method === "vnpay"
                     ? "VNPay"
-                    : order.payments?.[0]?.payment_method === "momo"
-                    ? "MoMo"
                     : "Khác"}
                 </span>
               </div>

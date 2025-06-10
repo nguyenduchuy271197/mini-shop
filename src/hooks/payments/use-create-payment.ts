@@ -7,7 +7,7 @@ import { QUERY_KEYS } from "@/lib/query-keys";
 
 export interface CreatePaymentData {
   orderId: number;
-  paymentMethod: "vnpay" | "momo" | "cod" | "bank_transfer";
+  paymentMethod: "vnpay" | "cod" | "stripe";
   amount: number;
   currency: string;
   paymentProvider?: string;

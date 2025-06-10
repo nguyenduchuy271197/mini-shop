@@ -7,7 +7,7 @@ import { format } from "date-fns";
 
 interface ExportPaymentsFilters {
   status?: "pending" | "processing" | "completed" | "failed" | "cancelled" | "refunded";
-  paymentMethod?: "vnpay" | "momo" | "cod" | "bank_transfer" | "stripe";
+  paymentMethod?: "vnpay" | "cod" | "stripe";
   dateFrom?: string;
   dateTo?: string;
   search?: string;

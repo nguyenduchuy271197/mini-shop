@@ -14,7 +14,7 @@ type PaymentWithDetails = Payment & {
 // Validation schema for export filters
 const exportPaymentsFiltersSchema = z.object({
   status: z.enum(['pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded']).optional(),
-  paymentMethod: z.enum(['vnpay', 'momo', 'cod', 'bank_transfer', 'stripe']).optional(),
+  paymentMethod: z.enum(['vnpay', 'cod', 'stripe']).optional(),
   dateFrom: z.string().optional(), // ISO date string
   dateTo: z.string().optional(), // ISO date string
   search: z.string().optional(), // Search in order number, transaction ID, customer email

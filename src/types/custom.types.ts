@@ -70,7 +70,7 @@ export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | '
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
 // Payment method types
-export type PaymentMethod = 'vnpay' | 'momo' | 'cod' | 'bank_transfer' | 'stripe';
+export type PaymentMethod = 'vnpay' | 'cod' | 'stripe';
 
 // Address type based on database schema
 export type AddressType = 'shipping' | 'billing';

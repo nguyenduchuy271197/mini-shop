@@ -7,7 +7,7 @@ import { z } from "zod";
 // Validation schema
 const verifyPaymentSchema = z.object({
   transactionId: z.string().min(1, "Mã giao dịch không được để trống"),
-  provider: z.enum(["vnpay", "momo", "bank_transfer"], {
+  provider: z.enum(["vnpay", "stripe"], {
     required_error: "Nhà cung cấp thanh toán là bắt buộc",
   }),
   verificationData: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
@@ -214,10 +214,8 @@ function getProviderName(provider: string): string {
   switch (provider) {
     case "vnpay":
       return "vnpay_gateway";
-    case "momo":
-      return "momo_wallet";
-    case "bank_transfer":
-      return "manual_bank_transfer";
+    case "stripe":
+      return "stripe_checkout";
     default:
       return provider;
   }
@@ -235,10 +233,8 @@ async function verifyWithProvider(
     switch (provider) {
       case "vnpay":
         return await verifyVnpayPayment(transactionId);
-      case "momo":
-        return await verifyMomoPayment(transactionId);
-      case "bank_transfer":
-        return await verifyBankTransferPayment(transactionId, verificationData);
+      case "stripe":
+        return await verifyStripePayment(transactionId, verificationData);
       default:
         return {
           verified: false,
@@ -292,27 +288,28 @@ async function verifyVnpayPayment(
 }
 
 /**
- * Verify MoMo payment (mock implementation)
+ * Verify Stripe payment (mock implementation)
  */
-async function verifyMomoPayment(
+async function verifyStripePayment(
   transactionId: string,
+  verificationData?: Record<string, string | number | boolean>
 ): Promise<PaymentVerificationResult> {
-  // Mock MoMo verification - replace with actual MoMo API call
+  // Mock Stripe verification - replace with actual Stripe API call
   
   const mockResponse = {
-    resultCode: 0, // Success code
-    amount: 100000,
-    transId: "12345678",
-    orderId: transactionId,
-    responseTime: Date.now(),
+    id: transactionId,
+    status: "succeeded",
+    amount: (verificationData?.amount as number) || 100000,
+    currency: "vnd",
+    created: Date.now(),
   };
 
-  if (mockResponse.resultCode === 0) {
+  if (mockResponse.status === "succeeded") {
     return {
       verified: true,
       status: "completed",
       amount: mockResponse.amount,
-      transactionDate: new Date(mockResponse.responseTime).toISOString(),
+      transactionDate: new Date(mockResponse.created).toISOString(),
       providerResponse: mockResponse,
     };
   } else {
@@ -320,40 +317,7 @@ async function verifyMomoPayment(
       verified: true,
       status: "failed",
       providerResponse: mockResponse,
-      errorMessage: `MoMo verification failed: ${mockResponse.resultCode}`,
-    };
-  }
-}
-
-/**
- * Verify bank transfer payment (mock implementation)
- */
-async function verifyBankTransferPayment(
-  transactionId: string,
-  verificationData?: Record<string, string | number | boolean>
-): Promise<PaymentVerificationResult> {
-  // Mock bank transfer verification - replace with actual bank API or manual verification
-  
-  // In real implementation, this might check with bank APIs or manual confirmation
-  const mockVerified = Math.random() > 0.3; // 70% success rate for demo
-  
-  if (mockVerified) {
-    return {
-      verified: true,
-      status: "completed",
-      amount: verificationData?.amount as number || 100000,
-      transactionDate: new Date().toISOString(),
-      providerResponse: {
-        bank_reference: `BT-${Date.now()}`,
-        verified_manually: true,
-        verification_method: "manual_check",
-      },
-    };
-  } else {
-    return {
-      verified: false,
-      status: "pending",
-      errorMessage: "Chưa thể xác minh giao dịch chuyển khoản. Vui lòng thử lại sau.",
+      errorMessage: `Stripe verification failed: ${mockResponse.status}`,
     };
   }
 }

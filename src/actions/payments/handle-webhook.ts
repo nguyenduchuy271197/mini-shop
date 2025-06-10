@@ -6,7 +6,7 @@ import { z } from "zod";
 
 // Validation schema
 const handleWebhookSchema = z.object({
-  provider: z.enum(["vnpay", "momo", "bank_transfer"], {
+  provider: z.enum(["vnpay", "stripe"], {
     required_error: "Nhà cung cấp thanh toán là bắt buộc",
   }),
   payload: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
@@ -221,10 +221,8 @@ async function verifyWebhookSignature(
   switch (provider) {
     case "vnpay":
       return verifyVnpaySignature(payload, signature);
-    case "momo":
-      return verifyMomoSignature(payload, signature);
-    case "bank_transfer":
-      return true; // Bank transfers might not have webhook signatures
+    case "stripe":
+      return verifyStripeSignature(payload, signature);
     default:
       return false;
   }
@@ -241,10 +239,8 @@ async function processWebhookPayload(
     switch (provider) {
       case "vnpay":
         return processVnpayWebhook(payload);
-      case "momo":
-        return processMomoWebhook(payload);
-      case "bank_transfer":
-        return processBankTransferWebhook(payload);
+      case "stripe":
+        return processStripeWebhook(payload);
       default:
         return {
           success: false,
@@ -271,12 +267,12 @@ function verifyVnpaySignature(
   return Boolean(signature && signature.length > 0);
 }
 
-function verifyMomoSignature(
+function verifyStripeSignature(
   payload: Record<string, string | number | boolean | null>,
   signature?: string
 ): boolean {
-  // Mock MoMo signature verification
-  // In real implementation, verify signature with MoMo secret key
+  // Mock Stripe signature verification
+  // In real implementation, verify webhook signature with Stripe
   return Boolean(signature && signature.length > 0);
 }
 
@@ -308,45 +304,37 @@ function processVnpayWebhook(
   }
 }
 
-function processMomoWebhook(
+function processStripeWebhook(
   payload: Record<string, string | number | boolean | null>
 ): WebhookProcessingResult {
-  const resultCode = payload.resultCode as number;
-  const transactionId = payload.orderId as string;
-  const amount = payload.amount as number;
+  const eventType = payload.type as string;
+  const sessionId = payload.id as string;
+  const amount = payload.amount_total as number;
 
-  if (resultCode === 0) {
+  if (eventType === "checkout.session.completed") {
     return {
       success: true,
-      transactionId,
+      transactionId: sessionId,
       status: "completed",
-      amount,
+      amount: amount / 100, // Stripe amount is in cents
       action: "payment_completed",
+    };
+  } else if (eventType === "checkout.session.expired") {
+    return {
+      success: true,
+      transactionId: sessionId,
+      status: "failed",
+      amount: amount / 100,
+      errorMessage: "Stripe checkout session expired",
+      action: "payment_failed",
     };
   } else {
     return {
       success: true,
-      transactionId,
-      status: "failed",
-      amount,
-      errorMessage: `MoMo error code: ${resultCode}`,
-      action: "payment_failed",
+      transactionId: sessionId,
+      status: "pending",
+      amount: amount / 100,
+      action: "payment_pending",
     };
   }
-}
-
-function processBankTransferWebhook(
-  payload: Record<string, string | number | boolean | null>
-): WebhookProcessingResult {
-  const transactionId = payload.reference as string;
-  const amount = payload.amount as number;
-  const status = payload.status as string;
-
-  return {
-    success: true,
-    transactionId,
-    status: status === "completed" ? "completed" : "failed",
-    amount,
-    action: status === "completed" ? "payment_completed" : "payment_failed",
-  };
 } 

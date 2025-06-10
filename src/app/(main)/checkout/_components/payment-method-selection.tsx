@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Truck, CreditCard, Smartphone, Building2 } from "lucide-react";
+import { Truck, CreditCard } from "lucide-react";
 
 const paymentMethods = [
   {
@@ -20,18 +20,10 @@ const paymentMethods = [
     recommended: false,
   },
   {
-    id: "momo",
-    name: "Ví MoMo",
-    description: "Thanh toán qua ví điện tử MoMo",
-    icon: <Smartphone className="w-5 h-5" />,
-    fee: 0,
-    recommended: false,
-  },
-  {
-    id: "bank_transfer",
-    name: "Chuyển khoản ngân hàng",
-    description: "Chuyển khoản trực tiếp vào tài khoản ngân hàng",
-    icon: <Building2 className="w-5 h-5" />,
+    id: "stripe",
+    name: "Stripe",
+    description: "Thanh toán bằng thẻ tín dụng/ghi nợ",
+    icon: <CreditCard className="w-5 h-5" />,
     fee: 0,
     recommended: false,
   },
@@ -108,27 +100,12 @@ export default function PaymentMethodSelection({
             </div>
 
             {/* Additional info for specific methods */}
-            {isSelected && method.id === "bank_transfer" && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg border-t">
-                <h5 className="font-medium text-sm mb-2">
-                  Thông tin chuyển khoản:
-                </h5>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <p>
-                    <strong>Ngân hàng:</strong> Vietcombank
-                  </p>
-                  <p>
-                    <strong>Số tài khoản:</strong> 1234567890
-                  </p>
-                  <p>
-                    <strong>Chủ tài khoản:</strong> MINI SHOP
-                  </p>
-                  <p>
-                    <strong>Chi nhánh:</strong> TP. Hồ Chí Minh
-                  </p>
-                  <p className="text-xs text-orange-600 mt-2">
-                    * Vui lòng ghi rõ mã đơn hàng trong nội dung chuyển khoản
-                  </p>
+            {isSelected && method.id === "stripe" && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border-t">
+                <div className="text-sm text-blue-700 space-y-1">
+                  <p>✓ Bảo mật cao với mã hóa SSL</p>
+                  <p>✓ Hỗ trợ Visa, Mastercard, American Express</p>
+                  <p>✓ Thanh toán nhanh chóng và an toàn</p>
                 </div>
               </div>
             )}

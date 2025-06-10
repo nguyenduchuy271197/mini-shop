@@ -7,7 +7,7 @@ import { QUERY_KEYS } from "@/lib/query-keys";
 
 export interface VerifyPaymentData {
   transactionId: string;
-  provider: "vnpay" | "momo" | "bank_transfer";
+  provider: "vnpay" | "stripe";
   verificationData?: Record<string, string | number | boolean>;
 }
 

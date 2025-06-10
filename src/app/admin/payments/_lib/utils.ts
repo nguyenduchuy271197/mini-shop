@@ -44,12 +44,10 @@ export function getPaymentMethodText(method: string): string {
   switch (method) {
     case "vnpay":
       return "VNPay";
-    case "momo":
-      return "MoMo";
     case "cod":
       return "Thanh toán khi nhận hàng";
-    case "bank_transfer":
-      return "Chuyển khoản ngân hàng";
+    case "stripe":
+      return "Stripe";
     default:
       return method;
   }
@@ -59,12 +57,10 @@ export function getPaymentMethodIcon(method: string): string {
   switch (method) {
     case "vnpay":
       return "💳";
-    case "momo":
-      return "📱";
     case "cod":
       return "💵";
-    case "bank_transfer":
-      return "🏦";
+    case "stripe":
+      return "💳";
     default:
       return "💰";
   }

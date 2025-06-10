@@ -238,7 +238,7 @@ comment on table public.order_items is 'Individual items within orders with pric
 create table public.payments (
   id bigint generated always as identity primary key,
   order_id bigint references public.orders(id) on delete cascade not null,
-  payment_method text not null check (payment_method in ('vnpay', 'momo', 'cod', 'bank_transfer', 'stripe')),
+  payment_method text not null check (payment_method in ('vnpay', 'cod', 'stripe')),
   payment_provider text,
   transaction_id text,
   amount decimal(10,2) not null check (amount > 0),

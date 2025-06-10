@@ -10,19 +10,22 @@ export function useClearCart() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (options?: { silent?: boolean }) => {
       const result = await clearCart();
       if (!result.success) {
         throw new Error(result.error);
       }
-      return result;
+      return { ...result, silent: options?.silent };
     },
     onSuccess: (data) => {
-      toast({
-        title: "Thành công",
-        description: data.message,
-      });
-      // Invalidate cart queries
+      // Only show toast if not in silent mode
+      if (!data.silent) {
+        toast({
+          title: "Thành công",
+          description: data.message,
+        });
+      }
+      // Always invalidate cart queries
       queryClient.invalidateQueries({ 
         queryKey: QUERY_KEYS.cart.all 
       });

@@ -9,13 +9,13 @@ const getPaymentMethodsSchema = z.object({
 });
 
 const getPaymentMethodDetailsSchema = z.object({
-  method: z.enum(["vnpay", "momo", "cod", "bank_transfer"], {
+  method: z.enum(["vnpay", "cod", "stripe"], {
     required_error: "Phương thức thanh toán là bắt buộc",
   }),
 });
 
 const isPaymentMethodAvailableSchema = z.object({
-  method: z.enum(["vnpay", "momo", "cod", "bank_transfer"], {
+  method: z.enum(["vnpay", "cod", "stripe"], {
     required_error: "Phương thức thanh toán là bắt buộc",
   }),
   amount: z.number().positive("Số tiền phải lớn hơn 0"),
@@ -269,36 +269,20 @@ function getAllPaymentMethods(): PaymentMethodInfo[] {
       instructions: "Quét mã QR hoặc đăng nhập Internet Banking để thanh toán",
     },
     {
-      id: "momo",
-      name: "MoMo",
-      display_name: "Ví MoMo",
-      description: "Thanh toán qua ví điện tử MoMo",
+      id: "stripe",
+      name: "Stripe",
+      display_name: "Thẻ tín dụng/ghi nợ",
+      description: "Thanh toán bằng thẻ Visa, Mastercard, American Express",
       min_amount: 10000, // 10,000 VND
-      max_amount: 50000000, // 50M VND
-      fee_percentage: 0.015, // 1.5%
+      max_amount: 500000000, // 500M VND
+      fee_percentage: 0.029, // 2.9% + 30¢
       fixed_fee: 0,
       processing_time: "Tức thì",
       is_active: true,
       supports_refund: true,
       supported_currencies: ["VND"],
-      icon_url: "/icons/momo.svg",
-      instructions: "Mở ứng dụng MoMo và quét mã QR để thanh toán",
-    },
-    {
-      id: "bank_transfer",
-      name: "Bank Transfer",
-      display_name: "Chuyển khoản ngân hàng",
-      description: "Chuyển khoản trực tiếp qua ngân hàng",
-      min_amount: 50000, // 50,000 VND
-      max_amount: 1000000000, // 1B VND
-      fee_percentage: 0,
-      fixed_fee: 0,
-      processing_time: "1-3 giờ",
-      is_active: true,
-      supports_refund: true,
-      supported_currencies: ["VND"],
-      icon_url: "/icons/bank-transfer.svg",
-      instructions: "Chuyển khoản theo thông tin được cung cấp và gửi chứng từ",
+      icon_url: "/icons/stripe.svg",
+      instructions: "Thanh toán an toàn với thẻ tín dụng/ghi nợ",
     },
     {
       id: "cod",
@@ -327,9 +311,8 @@ function calculateRecommendationScore(method: PaymentMethodInfo, amount?: number
 
   // Base score for each method
   const baseScores: Record<string, number> = {
+    stripe: 85,
     vnpay: 80,
-    momo: 75,
-    bank_transfer: 60,
     cod: 50,
   };
 
