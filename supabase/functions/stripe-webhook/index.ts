@@ -172,6 +172,19 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     return;
   }
 
+  // Clear cart for the user since payment is successful
+  const { error: clearCartError } = await supabase
+    .from("cart_items")
+    .delete()
+    .eq("user_id", payment.orders.user_id);
+
+  if (clearCartError) {
+    console.error("Error clearing cart:", clearCartError);
+    // Don't return here - cart clearing failure shouldn't affect payment processing
+  } else {
+    console.log("Successfully cleared cart for user:", payment.orders.user_id);
+  }
+
   console.log("Successfully processed checkout session completed");
 }
 

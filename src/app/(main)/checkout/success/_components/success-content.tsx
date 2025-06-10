@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useStripePaymentStatus } from "@/hooks/payments/use-stripe-checkout";
+import { useClearCart } from "@/hooks/cart";
 import Link from "next/link";
 
 interface SuccessContentProps {
@@ -20,6 +21,9 @@ export default function SuccessContent({
   const [verificationStatus, setVerificationStatus] = useState<
     "pending" | "success" | "failed"
   >("pending");
+  const [cartCleared, setCartCleared] = useState(false);
+
+  const clearCart = useClearCart();
 
   // Use real-time payment status polling for Stripe payments
   const { data: paymentStatusData, isLoading } = useStripePaymentStatus(
@@ -29,8 +33,21 @@ export default function SuccessContent({
 
   useEffect(() => {
     if (!sessionId) {
-      // Non-Stripe payment or COD
+      // Non-Stripe payment (COD, VNPay, etc.) - clear cart immediately
       setVerificationStatus("success");
+
+      // Clear cart for COD payments since no webhook will do it
+      if (!cartCleared) {
+        clearCart.mutate(undefined, {
+          onSuccess: () => {
+            setCartCleared(true);
+            console.log("Cart cleared for COD payment");
+          },
+          onError: (error) => {
+            console.error("Failed to clear cart for COD:", error);
+          },
+        });
+      }
       return;
     }
 
@@ -38,12 +55,13 @@ export default function SuccessContent({
       const status = paymentStatusData.payment.status;
       if (status === "completed") {
         setVerificationStatus("success");
+        // For Stripe payments, cart is cleared by webhook
       } else if (status === "failed") {
         setVerificationStatus("failed");
       }
       // Keep pending for other statuses
     }
-  }, [sessionId, paymentStatusData]);
+  }, [sessionId, paymentStatusData, cartCleared, clearCart]);
 
   const getStatusIcon = () => {
     if (sessionId && verificationStatus === "pending") {

@@ -48,4 +48,35 @@ export async function clearCart(): Promise<ClearCartResult> {
       error: "Đã xảy ra lỗi không mong muốn khi xóa giỏ hàng",
     };
   }
+}
+
+// System function to clear cart for specific user (used by payment confirmations)
+export async function clearCartForUser(userId: string): Promise<ClearCartResult> {
+  try {
+    // 1. Create Supabase client with service role
+    const supabase = createClient();
+
+    // 2. Delete all cart items for the specified user
+    const { error: deleteError } = await supabase
+      .from("cart_items")
+      .delete()
+      .eq("user_id", userId);
+
+    if (deleteError) {
+      return {
+        success: false,
+        error: deleteError.message || "Không thể xóa giỏ hàng",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Đã xóa tất cả sản phẩm khỏi giỏ hàng",
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Đã xảy ra lỗi không mong muốn khi xóa giỏ hàng",
+    };
+  }
 } 

@@ -31,13 +31,14 @@ export function useCreateOrder() {
           description: result.message,
         });
         
-        // Invalidate related queries
+        // Only invalidate orders - keep cart intact until payment confirmation
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders.all });
-        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.all });
         
-        // Also specifically invalidate cart details and total
-        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.details() });
-        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.total() });
+        // DO NOT invalidate cart queries here - cart will be cleared after payment success
+        // This allows users to return to cart if they cancel payment
+        // queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.all });
+        // queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.details() });
+        // queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cart.total() });
       } else {
         toast({
           title: "Lỗi",

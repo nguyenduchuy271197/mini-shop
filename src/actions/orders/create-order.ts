@@ -308,12 +308,9 @@ export async function createOrder(data: CreateOrderData): Promise<CreateOrderRes
         .eq("id", product.id);
     }
 
-    // 12. Clear cart after successful order creation
-    // Always clear cart for the user since order is created successfully
-    await supabase
-      .from("cart_items")
-      .delete()
-      .eq("user_id", user.id);
+    // 12. DO NOT clear cart here - only clear after payment confirmation
+    // This allows users to return to cart if they cancel payment
+    // Cart will be cleared by webhook when payment is successful
 
     // 13. Update coupon usage count
     if (couponId) {
