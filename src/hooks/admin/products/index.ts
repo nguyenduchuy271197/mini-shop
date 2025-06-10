@@ -11,6 +11,7 @@ export { useUpdateStock } from "./use-update-stock";
 export { useUploadProductImages } from "./use-upload-product-images";
 export { useExportProducts } from "./use-export-products";
 export { useImportProducts } from "./use-import-products";
+export { useRefreshProducts } from "./use-refresh-products";
 
 // Export types
 export type { 
@@ -65,4 +66,8 @@ export type {
 export type { 
   ImportProductsData, 
   UseImportProductsOptions 
-} from "./use-import-products"; 
+} from "./use-import-products";
+
+export type { 
+  UseRefreshProductsOptions 
+} from "./use-refresh-products"; 

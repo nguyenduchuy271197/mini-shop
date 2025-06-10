@@ -1,9 +1,18 @@
-import { Plus } from "lucide-react";
+"use client";
+
+import { Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminCreateProductDialog } from "./admin-create-product-dialog";
 import { AdminProductsImportExport } from "./admin-products-import-export";
+import { useRefreshProducts } from "@/hooks/admin/products";
 
 export function AdminProductsHeader() {
+  const refreshMutation = useRefreshProducts();
+
+  const handleRefresh = () => {
+    refreshMutation.mutate();
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -14,6 +23,19 @@ export function AdminProductsHeader() {
       </div>
 
       <div className="flex items-center space-x-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={refreshMutation.isPending}
+        >
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${
+              refreshMutation.isPending ? "animate-spin" : ""
+            }`}
+          />
+          Làm mới
+        </Button>
         <AdminProductsImportExport />
         <AdminCreateProductDialog>
           <Button>

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { useExportProducts, useImportProducts } from "@/hooks/admin/products";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +35,7 @@ import {
 const importSchema = z.object({
   file: z.any().refine((file) => file?.length > 0, "Vui lòng chọn file"),
   updateExisting: z.boolean(),
-  skipErrors: z.boolean(),
+  validateOnly: z.boolean(),
 });
 
 type ImportFormData = z.infer<typeof importSchema>;
@@ -54,101 +55,82 @@ interface ImportResult {
 
 export function AdminProductsImportExport() {
   const [importOpen, setImportOpen] = useState(false);
-
-  const [importing, setImporting] = useState(false);
-  const [exporting, setExporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+
+  // Hooks
+  const exportMutation = useExportProducts({
+    onSuccess: (result) => {
+      console.log("Export successful:", result);
+    },
+  });
+
+  const importMutation = useImportProducts({
+    onSuccess: (result) => {
+      setImportResult({
+        total: result.imported + result.updated + result.skipped,
+        success: result.imported + result.updated,
+        errors: result.errors.length,
+        warnings:
+          result.errors.length > 0
+            ? ["Một số sản phẩm có lỗi trong quá trình import"]
+            : [],
+        errorDetails: result.errors.map((error, index) => ({
+          row: index + 1,
+          error,
+          data: {},
+        })),
+      });
+    },
+  });
 
   const importForm = useForm<ImportFormData>({
     resolver: zodResolver(importSchema),
     defaultValues: {
       updateExisting: false,
-      skipErrors: true,
+      validateOnly: false,
     },
   });
 
   const handleImport = async (data: ImportFormData) => {
-    setImporting(true);
     setImportProgress(0);
+    const file = data.file[0];
 
     try {
-      // Simulate import process
-      const file = data.file[0];
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("updateExisting", data.updateExisting.toString());
-      formData.append("skipErrors", data.skipErrors.toString());
+      // Read file content as text
+      const csvData = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = (e) => reject(new Error("Không thể đọc file"));
+        reader.readAsText(file);
+      });
 
-      // Simulate progress
-      for (let i = 0; i <= 100; i += 10) {
-        setImportProgress(i);
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      }
-
-      // Mock result
-      const result: ImportResult = {
-        total: 150,
-        success: 145,
-        errors: 5,
-        warnings: [
-          "Một số sản phẩm không có hình ảnh",
-          "Một số danh mục không tồn tại và đã được tạo mới",
-        ],
-        errorDetails: [
-          { row: 15, error: "SKU đã tồn tại", data: { sku: "PROD-001" } },
-          { row: 23, error: "Giá không hợp lệ", data: { price: "invalid" } },
-          {
-            row: 45,
-            error: "Danh mục không tồn tại",
-            data: { category: "Unknown" },
-          },
-          {
-            row: 67,
-            error: "Tên sản phẩm quá dài",
-            data: { name: "Very long product name..." },
-          },
-          { row: 89, error: "Số lượng tồn kho âm", data: { stock: -5 } },
-        ],
-      };
-
-      setImportResult(result);
+      importMutation.mutate({
+        csvData,
+        overwrite: data.updateExisting,
+        validateOnly: false,
+      });
     } catch (error) {
-      console.error("Import error:", error);
-    } finally {
-      setImporting(false);
+      console.error("File reading error:", error);
     }
   };
 
-  const handleExport = async (format: "csv" | "xlsx") => {
-    setExporting(true);
-
-    try {
-      // Simulate export
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Create download link
-      const blob = new Blob(["Sample export data"], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `products-export.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Export error:", error);
-    } finally {
-      setExporting(false);
-    }
+  const handleExport = (format: "csv" | "json") => {
+    exportMutation.mutate({
+      filters: {}, // Export all products by default
+      format,
+      includeInactive: false,
+    });
   };
 
   const downloadTemplate = () => {
-    const csvContent = `name,slug,sku,description,price,compare_price,cost_price,stock_quantity,low_stock_threshold,category_name,brand,weight,is_active,is_featured,tags,meta_title,meta_description
-"Sản phẩm mẫu","san-pham-mau","SAMPLE-001","Mô tả sản phẩm mẫu",100000,120000,80000,50,10,"Danh mục mẫu","Thương hiệu mẫu",0.5,true,false,"tag1,tag2","Meta title mẫu","Meta description mẫu"`;
+    const csvContent = `name,slug,sku,description,short_description,price,compare_price,cost_price,stock_quantity,low_stock_threshold,category_id,brand,weight,images,tags,is_active,is_featured
+"Sản phẩm mẫu","san-pham-mau","SAMPLE-001","Mô tả chi tiết sản phẩm mẫu","Mô tả ngắn",100000,120000,80000,50,10,1,"Thương hiệu mẫu",0.5,"https://example.com/image1.jpg|https://example.com/image2.jpg","tag1,tag2",true,false
+"Áo thun nam","ao-thun-nam","SHIRT-001","Áo thun nam 100% cotton","Áo thun cotton thoáng mát",299000,350000,200000,100,20,2,"Fashion Brand",0.3,"https://example.com/shirt.jpg","áo thun,nam,cotton",true,true`;
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -237,7 +219,7 @@ export function AdminProductsImportExport() {
 
                     <FormField
                       control={importForm.control}
-                      name="skipErrors"
+                      name="validateOnly"
                       render={({ field }) => (
                         <FormItem className="flex items-center space-x-2">
                           <FormControl>
@@ -248,14 +230,14 @@ export function AdminProductsImportExport() {
                             />
                           </FormControl>
                           <FormLabel className="text-sm">
-                            Bỏ qua các dòng lỗi
+                            Chỉ xác thực dữ liệu (không import)
                           </FormLabel>
                         </FormItem>
                       )}
                     />
                   </div>
 
-                  {importing && (
+                  {importMutation.isPending && (
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>Đang import...</span>
@@ -271,12 +253,12 @@ export function AdminProductsImportExport() {
                     type="button"
                     variant="outline"
                     onClick={() => setImportOpen(false)}
-                    disabled={importing}
+                    disabled={importMutation.isPending}
                   >
                     Hủy
                   </Button>
-                  <Button type="submit" disabled={importing}>
-                    {importing && (
+                  <Button type="submit" disabled={importMutation.isPending}>
+                    {importMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
                     Import
@@ -369,8 +351,12 @@ export function AdminProductsImportExport() {
       {/* Export Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" disabled={exporting}>
-            {exporting ? (
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={exportMutation.isPending}
+          >
+            {exportMutation.isPending ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (
               <Download className="h-4 w-4 mr-2" />
@@ -383,9 +369,9 @@ export function AdminProductsImportExport() {
             <FileText className="mr-2 h-4 w-4" />
             Export CSV
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleExport("xlsx")}>
+          <DropdownMenuItem onClick={() => handleExport("json")}>
             <FileText className="mr-2 h-4 w-4" />
-            Export Excel
+            Export JSON
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

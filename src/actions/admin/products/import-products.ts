@@ -15,32 +15,32 @@ type ImportProductsData = z.infer<typeof importProductsSchema>;
 
 // CSV row schema
 const csvRowSchema = z.object({
-  name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự"),
-  slug: z.string().min(3, "Slug phải có ít nhất 3 ký tự").regex(/^[a-z0-9-]+$/, "Slug chỉ được chứa chữ thường, số và dấu gạch ngang"),
+  name: z.string().min(1, "Tên sản phẩm không được để trống").min(3, "Tên sản phẩm phải có ít nhất 3 ký tự"),
+  slug: z.string().min(1, "Slug không được để trống").min(3, "Slug phải có ít nhất 3 ký tự").regex(/^[a-z0-9-]+$/, "Slug chỉ được chứa chữ thường, số và dấu gạch ngang"),
   description: z.string().optional(),
   short_description: z.string().optional(),
   sku: z.string().optional(),
-  price: z.string().transform((val) => {
-    const num = parseFloat(val);
-    if (isNaN(num) || num <= 0) throw new Error("Giá phải là số dương");
+  price: z.string().min(1, "Giá không được để trống").transform((val) => {
+    const num = parseFloat(val.replace(/[^\d.-]/g, '')); // Remove non-numeric characters except . and -
+    if (isNaN(num) || num <= 0) throw new Error(`Giá không hợp lệ: "${val}". Phải là số dương`);
     return num;
   }),
   compare_price: z.string().optional().transform((val) => {
-    if (!val || val === "") return undefined;
-    const num = parseFloat(val);
-    if (isNaN(num) || num <= 0) throw new Error("Giá so sánh phải là số dương");
+    if (!val || val.trim() === "") return undefined;
+    const num = parseFloat(val.replace(/[^\d.-]/g, ''));
+    if (isNaN(num) || num <= 0) throw new Error(`Giá so sánh không hợp lệ: "${val}". Phải là số dương`);
     return num;
   }),
   cost_price: z.string().optional().transform((val) => {
-    if (!val || val === "") return undefined;
-    const num = parseFloat(val);
-    if (isNaN(num) || num <= 0) throw new Error("Giá gốc phải là số dương");
+    if (!val || val.trim() === "") return undefined;
+    const num = parseFloat(val.replace(/[^\d.-]/g, ''));
+    if (isNaN(num) || num <= 0) throw new Error(`Giá gốc không hợp lệ: "${val}". Phải là số dương`);
     return num;
   }),
   stock_quantity: z.string().optional().transform((val) => {
-    if (!val || val === "") return 0;
-    const num = parseInt(val);
-    if (isNaN(num) || num < 0) throw new Error("Số lượng tồn kho phải là số không âm");
+    if (!val || val.trim() === "") return 0;
+    const num = parseInt(val.replace(/[^\d]/g, ''));
+    if (isNaN(num) || num < 0) throw new Error(`Số lượng tồn kho không hợp lệ: "${val}". Phải là số không âm`);
     return num;
   }),
   low_stock_threshold: z.string().optional().transform((val) => {
@@ -130,7 +130,43 @@ export async function importProductsFromCSV(data: ImportProductsData): Promise<I
       };
     }
 
-    // 4. Parse CSV data
+    // 4. Parse CSV data with proper CSV parsing
+    function parseCSVLine(line: string): string[] {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      let i = 0;
+
+      while (i < line.length) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && nextChar === '"') {
+            // Escaped quote
+            current += '"';
+            i += 2;
+          } else {
+            // Toggle quote state
+            inQuotes = !inQuotes;
+            i++;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // Field separator
+          result.push(current.trim());
+          current = '';
+          i++;
+        } else {
+          current += char;
+          i++;
+        }
+      }
+
+      // Add the last field
+      result.push(current.trim());
+      return result;
+    }
+
     const lines = csvData.trim().split('\n');
     if (lines.length < 2) {
       return {
@@ -139,7 +175,8 @@ export async function importProductsFromCSV(data: ImportProductsData): Promise<I
       };
     }
 
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    // Parse headers
+    const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"|"$/g, '').trim());
     const requiredHeaders = ['name', 'slug', 'price'];
     const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
     
@@ -159,7 +196,7 @@ export async function importProductsFromCSV(data: ImportProductsData): Promise<I
       if (!line) continue;
 
       try {
-        const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        const values = parseCSVLine(line).map(v => v.replace(/^"|"$/g, '').trim());
         const rowData: Record<string, string> = {};
         
         headers.forEach((header, index) => {
@@ -170,9 +207,10 @@ export async function importProductsFromCSV(data: ImportProductsData): Promise<I
         rows.push(parsedRow);
       } catch (error) {
         if (error instanceof z.ZodError) {
-          errors.push(`Dòng ${i + 1}: ${error.errors[0].message}`);
+          const firstError = error.errors[0];
+          errors.push(`Dòng ${i + 1}, cột "${firstError.path.join('.')}": ${firstError.message}`);
         } else {
-          errors.push(`Dòng ${i + 1}: Lỗi phân tích dữ liệu`);
+          errors.push(`Dòng ${i + 1}: Lỗi phân tích dữ liệu - ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
     }
