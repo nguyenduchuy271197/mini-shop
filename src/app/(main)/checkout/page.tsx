@@ -20,23 +20,23 @@ export default async function CheckoutPage() {
 
   return (
     <CheckoutProvider>
-      <div className="container mx-auto py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <CheckoutHeader />
+    <div className="container mx-auto py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        <CheckoutHeader />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-            {/* Checkout Form */}
-            <div className="lg:col-span-2">
-              <CheckoutForm />
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+          {/* Checkout Form */}
+          <div className="lg:col-span-2">
+            <CheckoutForm />
+          </div>
 
-            {/* Order Summary */}
-            <div className="lg:col-span-1">
-              <CheckoutSummary />
-            </div>
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <CheckoutSummary />
           </div>
         </div>
       </div>
+    </div>
     </CheckoutProvider>
   );
 }

@@ -48,7 +48,7 @@ export async function clearCart(): Promise<ClearCartResult> {
       error: "Đã xảy ra lỗi không mong muốn khi xóa giỏ hàng",
     };
   }
-}
+} 
 
 // System function to clear cart for specific user (used by payment confirmations)
 export async function clearCartForUser(userId: string): Promise<ClearCartResult> {

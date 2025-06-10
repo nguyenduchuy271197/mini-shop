@@ -66,7 +66,7 @@ export type {
 export type { 
   ImportProductsData, 
   UseImportProductsOptions 
-} from "./use-import-products";
+} from "./use-import-products"; 
 
 export type { 
   UseRefreshProductsOptions 

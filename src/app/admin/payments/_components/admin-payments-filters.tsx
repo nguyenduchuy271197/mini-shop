@@ -66,14 +66,14 @@ export function AdminPaymentsFilters({
             <Label htmlFor="search">Tìm kiếm</Label>
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
+            <Input
                 id="search"
                 placeholder="Mã đơn hàng, mã giao dịch..."
                 value={filters.search || ""}
                 onChange={(e) => handleFilterChange("search", e.target.value)}
                 className="pl-9"
-              />
-            </div>
+            />
+          </div>
           </div>
 
           {/* Payment Status */}

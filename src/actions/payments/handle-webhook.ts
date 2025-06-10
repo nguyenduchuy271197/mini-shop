@@ -329,12 +329,12 @@ function processStripeWebhook(
       action: "payment_failed",
     };
   } else {
-    return {
-      success: true,
+  return {
+    success: true,
       transactionId: sessionId,
       status: "pending",
       amount: amount / 100,
       action: "payment_pending",
-    };
+  };
   }
 } 

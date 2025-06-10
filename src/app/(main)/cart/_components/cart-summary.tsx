@@ -124,7 +124,7 @@ export default function CartSummary() {
         <div className="flex justify-between text-sm">
           <span>Phí vận chuyển</span>
           {cartTotal.subtotal >= 500000 ? (
-            <span className="text-green-600">Miễn phí</span>
+          <span className="text-green-600">Miễn phí</span>
           ) : (
             <span className="text-gray-500">Tính khi thanh toán</span>
           )}

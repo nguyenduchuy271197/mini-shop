@@ -20,10 +20,10 @@ export function useClearCart() {
     onSuccess: (data) => {
       // Only show toast if not in silent mode
       if (!data.silent) {
-        toast({
-          title: "Thành công",
-          description: data.message,
-        });
+      toast({
+        title: "Thành công",
+        description: data.message,
+      });
       }
       // Always invalidate cart queries
       queryClient.invalidateQueries({ 
