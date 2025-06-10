@@ -10,7 +10,23 @@ import { useClearCart } from "@/hooks/cart";
 import Link from "next/link";
 
 interface SuccessContentProps {
-  order: any; // Order with order_items and payments
+  order: {
+    id: number;
+    order_number: string;
+    status: string;
+    total_amount: number;
+    payments?: Array<{
+      payment_method: string;
+      status: string;
+    }>;
+    order_items?: Array<{
+      id: number;
+      product_name: string;
+      quantity: number;
+      unit_price: number;
+      total_price: number;
+    }>;
+  };
   sessionId?: string;
 }
 
@@ -26,7 +42,7 @@ export default function SuccessContent({
   const clearCart = useClearCart();
 
   // Use real-time payment status polling for Stripe payments
-  const { data: paymentStatusData, isLoading } = useStripePaymentStatus(
+  const { data: paymentStatusData } = useStripePaymentStatus(
     sessionId || "",
     !!sessionId
   );
@@ -97,7 +113,7 @@ export default function SuccessContent({
 
   const statusMessage = getStatusMessage();
   const stripePayment = order.payments?.find(
-    (p: any) => p.payment_method === "stripe"
+    (p) => p.payment_method === "stripe"
   );
 
   return (
@@ -187,7 +203,7 @@ export default function SuccessContent({
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {order.order_items?.map((item: any) => (
+            {order.order_items?.map((item) => (
               <div
                 key={item.id}
                 className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0"

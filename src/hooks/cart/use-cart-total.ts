@@ -16,7 +16,7 @@ export function useCartTotal(options: UseCartTotalOptions = {}) {
   return useQuery({
     queryKey: [...QUERY_KEYS.cart.total(), shippingMethod],
     queryFn: async () => {
-      const params: any = {};
+      const params: { couponCode?: string; shippingMethod?: string } = {};
       if (couponCode) params.couponCode = couponCode;
       if (shippingMethod) params.shippingMethod = shippingMethod;
       

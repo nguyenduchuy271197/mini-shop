@@ -9,7 +9,6 @@ import {
   ClipboardList,
   CreditCard,
   BarChart3,
-  Truck,
   MessageSquare,
   Megaphone,
 } from "lucide-react";

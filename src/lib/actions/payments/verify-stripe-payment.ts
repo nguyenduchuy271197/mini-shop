@@ -59,7 +59,7 @@ export async function verifyStripePayment(sessionId: string) {
         transaction_id: session.payment_intent as string,
         stripe_payment_intent_id: session.payment_intent as string,
         processed_at: paymentStatus === "completed" ? new Date().toISOString() : null,
-        gateway_response: session as any,
+        gateway_response: JSON.parse(JSON.stringify(session)),
       })
       .eq("id", payment.id);
 

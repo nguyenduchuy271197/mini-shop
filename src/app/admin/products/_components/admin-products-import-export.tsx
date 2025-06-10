@@ -101,7 +101,7 @@ export function AdminProductsImportExport() {
       const csvData = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => resolve(e.target?.result as string);
-        reader.onerror = (e) => reject(new Error("Không thể đọc file"));
+        reader.onerror = () => reject(new Error("Không thể đọc file"));
         reader.readAsText(file);
       });
 

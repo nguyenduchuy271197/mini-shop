@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import { AdminPageWrapper } from "@/components/admin/admin-page-wrapper";
 import { AdminPaymentsHeader } from "./_components/admin-payments-header";
@@ -50,7 +49,7 @@ export default function AdminPaymentsPage() {
         title: "Đã làm mới dữ liệu",
         description: "Dữ liệu thanh toán đã được cập nhật",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Lỗi làm mới",
         description: "Không thể làm mới dữ liệu. Vui lòng thử lại.",

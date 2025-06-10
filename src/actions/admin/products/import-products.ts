@@ -95,6 +95,43 @@ type ImportProductsResult =
     }
   | { success: false; error: string };
 
+// Helper function to parse CSV lines with proper quote handling
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  let i = 0;
+
+  while (i < line.length) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        current += '"';
+        i += 2;
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+        i++;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // Field separator
+      result.push(current.trim());
+      current = '';
+      i++;
+    } else {
+      current += char;
+      i++;
+    }
+  }
+
+  // Add the last field
+  result.push(current.trim());
+  return result;
+}
+
 export async function importProductsFromCSV(data: ImportProductsData): Promise<ImportProductsResult> {
   try {
     // 1. Validate input
@@ -131,42 +168,6 @@ export async function importProductsFromCSV(data: ImportProductsData): Promise<I
     }
 
     // 4. Parse CSV data with proper CSV parsing
-    function parseCSVLine(line: string): string[] {
-      const result: string[] = [];
-      let current = '';
-      let inQuotes = false;
-      let i = 0;
-
-      while (i < line.length) {
-        const char = line[i];
-        const nextChar = line[i + 1];
-
-        if (char === '"') {
-          if (inQuotes && nextChar === '"') {
-            // Escaped quote
-            current += '"';
-            i += 2;
-          } else {
-            // Toggle quote state
-            inQuotes = !inQuotes;
-            i++;
-          }
-        } else if (char === ',' && !inQuotes) {
-          // Field separator
-          result.push(current.trim());
-          current = '';
-          i++;
-        } else {
-          current += char;
-          i++;
-        }
-      }
-
-      // Add the last field
-      result.push(current.trim());
-      return result;
-    }
-
     const lines = csvData.trim().split('\n');
     if (lines.length < 2) {
       return {

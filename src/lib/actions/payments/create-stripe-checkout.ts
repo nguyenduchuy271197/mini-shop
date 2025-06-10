@@ -57,9 +57,6 @@ export async function createStripeCheckout(
       throw new Error("Order not found or access denied");
     }
 
-    // Convert VND to cents (Stripe requires smallest currency unit)
-    const amountInCents = Math.round(checkoutData.amount);
-
     // Create line items for Stripe
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = 
       order.order_items.map((item) => ({
@@ -77,7 +74,7 @@ export async function createStripeCheckout(
     const shippingMethod = checkoutData.metadata?.shippingMethod;
     if (shippingMethod) {
       // Calculate shipping cost based on order total and method
-      const orderSubtotal = order.order_items.reduce((sum: number, item: any) => sum + item.total_price, 0);
+      const orderSubtotal = order.order_items.reduce((sum: number, item: { total_price: number }) => sum + item.total_price, 0);
       const FREE_SHIPPING_THRESHOLD = 500000; // 500,000 VND
       
       if (orderSubtotal < FREE_SHIPPING_THRESHOLD) {

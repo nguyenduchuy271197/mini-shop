@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,8 +23,37 @@ export default function AddressSelection({
   const [showAddressForm, setShowAddressForm] = useState(false);
   const { data: addressesData, isLoading } = useUserAddresses();
 
-  const addresses =
-    (addressesData?.success ? addressesData.addresses : []) || [];
+  const addresses = useMemo(
+    () => (addressesData?.success ? addressesData.addresses : []) || [],
+    [addressesData]
+  );
+
+  // Auto-select default address when addresses are loaded and no address is selected
+  useEffect(() => {
+    if (!selectedAddress && addresses.length > 0) {
+      // Find default address
+      const defaultAddress = addresses.find((addr) => addr.is_default);
+      // If no default, use the first address
+      const addressToSelect = defaultAddress || addresses[0];
+
+      if (addressToSelect) {
+        const addressData: AddressData = {
+          first_name: addressToSelect.first_name,
+          last_name: addressToSelect.last_name,
+          company: addressToSelect.company || undefined,
+          address_line_1: addressToSelect.address_line_1,
+          address_line_2: addressToSelect.address_line_2 || undefined,
+          city: addressToSelect.city,
+          state: addressToSelect.state,
+          postal_code: addressToSelect.postal_code,
+          country: addressToSelect.country,
+          phone: addressToSelect.phone || undefined,
+        };
+
+        onAddressSelect(addressData);
+      }
+    }
+  }, [addresses, selectedAddress, onAddressSelect]);
 
   const formatAddress = (address: {
     address_line_1: string;
