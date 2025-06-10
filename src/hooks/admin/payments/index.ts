@@ -4,6 +4,7 @@ export { usePaymentAnalytics } from "./use-payment-analytics";
 
 // Admin Payments Mutation Hooks
 export { useReconcilePayments } from "./use-reconcile-payments";
+export { useExportPayments } from "./use-export-payments";
 
 // Export types
 export type { 
@@ -27,4 +28,9 @@ export type {
   ReconciliationSummary,
   ReconcilePaymentsResponse,
   UseReconcilePaymentsOptions 
-} from "./use-reconcile-payments"; 
+} from "./use-reconcile-payments";
+
+export type { 
+  ExportPaymentsFilters, 
+  ExportPaymentsParams 
+} from "./use-export-payments"; 

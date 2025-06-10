@@ -14,7 +14,7 @@ type PaymentWithDetails = Payment & {
 // Validation schema cho payment filters
 const paymentFiltersSchema = z.object({
   status: z.enum(['pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded']).optional(),
-  paymentMethod: z.enum(['vnpay', 'momo', 'cod', 'bank_transfer']).optional(),
+  paymentMethod: z.enum(['vnpay', 'momo', 'cod', 'bank_transfer', 'stripe']).optional(),
   dateFrom: z.string().optional(), // ISO date string
   dateTo: z.string().optional(), // ISO date string
   minAmount: z.number().min(0).optional(),
@@ -22,6 +22,7 @@ const paymentFiltersSchema = z.object({
   orderId: z.number().positive().optional(),
   customerId: z.string().uuid().optional(),
   transactionId: z.string().optional(),
+  search: z.string().optional(),
 }).optional();
 
 const getAllPaymentsSchema = z.object({
@@ -132,6 +133,31 @@ export async function getAllPayments(data: GetAllPaymentsData): Promise<GetAllPa
 
       if (filters.transactionId) {
         paymentsQuery = paymentsQuery.eq("transaction_id", filters.transactionId);
+      }
+
+      // Search functionality
+      if (filters.search) {
+        const searchTerm = filters.search.trim();
+        if (searchTerm) {
+          // First get order IDs that match the search term
+          const { data: matchingOrders } = await supabase
+            .from("orders")
+            .select("id, order_number")
+            .or(`order_number.ilike.%${searchTerm}%`);
+
+          const orderIds = matchingOrders?.map(o => o.id) || [];
+          
+          // Then filter payments by transaction_id or matching order_ids
+          if (orderIds.length > 0) {
+            paymentsQuery = paymentsQuery.or(
+              `transaction_id.ilike.%${searchTerm}%,stripe_session_id.ilike.%${searchTerm}%,stripe_payment_intent_id.ilike.%${searchTerm}%,order_id.in.(${orderIds.join(',')})`
+            );
+          } else {
+            paymentsQuery = paymentsQuery.or(
+              `transaction_id.ilike.%${searchTerm}%,stripe_session_id.ilike.%${searchTerm}%,stripe_payment_intent_id.ilike.%${searchTerm}%`
+            );
+          }
+        }
       }
     }
 

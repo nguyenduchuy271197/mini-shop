@@ -7,7 +7,7 @@ import { Payment, Order, Profile } from "@/types/custom.types";
 
 interface PaymentFilters {
   status?: "pending" | "processing" | "completed" | "failed" | "cancelled" | "refunded";
-  paymentMethod?: "vnpay" | "momo" | "cod" | "bank_transfer";
+  paymentMethod?: "vnpay" | "momo" | "cod" | "bank_transfer" | "stripe";
   dateFrom?: string;
   dateTo?: string;
   minAmount?: number;
@@ -15,6 +15,7 @@ interface PaymentFilters {
   orderId?: number;
   customerId?: string;
   transactionId?: string;
+  search?: string;
 }
 
 interface UseAdminPaymentsParams {

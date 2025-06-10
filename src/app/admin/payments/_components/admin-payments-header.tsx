@@ -1,21 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { CreditCard, Download, FileText, RefreshCw } from "lucide-react";
+import { CreditCard, Download, RefreshCw } from "lucide-react";
 
 interface AdminPaymentsHeaderProps {
   onExport: () => void;
-  onReconcile: () => void;
   onRefresh: () => void;
   isExporting?: boolean;
-  isReconciling?: boolean;
   isLoading?: boolean;
 }
 
 export function AdminPaymentsHeader({
   onExport,
-  onReconcile,
   onRefresh,
   isExporting = false,
-  isReconciling = false,
   isLoading = false,
 }: AdminPaymentsHeaderProps) {
   return (
@@ -27,7 +23,7 @@ export function AdminPaymentsHeader({
             Quản lý thanh toán
           </h1>
           <p className="text-muted-foreground">
-            Xem báo cáo thanh toán, xác nhận giao dịch và đối soát dữ liệu
+            Xem và quản lý các giao dịch thanh toán
           </p>
         </div>
       </div>
@@ -42,19 +38,6 @@ export function AdminPaymentsHeader({
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
           <span>Làm mới</span>
-        </Button>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onReconcile}
-          disabled={isReconciling}
-          className="flex items-center space-x-2"
-        >
-          <FileText className="h-4 w-4" />
-          <span>
-            {isReconciling ? "Đang đối soát..." : "Đối soát thanh toán"}
-          </span>
         </Button>
 
         <Button
