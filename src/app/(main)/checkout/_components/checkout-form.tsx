@@ -29,9 +29,6 @@ export default function CheckoutForm() {
 
   const [selectedShippingAddress, setSelectedShippingAddress] =
     useState<AddressData | null>(null);
-  const [selectedBillingAddress, setSelectedBillingAddress] =
-    useState<AddressData | null>(null);
-  const [useSameAddress, setUseSameAddress] = useState(true);
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod>("stripe");
   const [orderNotes, setOrderNotes] = useState("");
@@ -56,22 +53,10 @@ export default function CheckoutForm() {
       return;
     }
 
-    const billingAddress = useSameAddress
-      ? selectedShippingAddress
-      : selectedBillingAddress;
-
-    if (!billingAddress) {
-      toast({
-        title: "Lỗi",
-        description: "Vui lòng chọn địa chỉ thanh toán",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    // Use shipping address as billing address
     const orderData: CreateOrderData = {
       shipping_address: selectedShippingAddress,
-      billing_address: billingAddress,
+      billing_address: selectedShippingAddress,
       shipping_method: selectedShippingMethod,
       coupon_code: couponCode || undefined,
       notes: orderNotes || undefined,
@@ -102,18 +87,16 @@ export default function CheckoutForm() {
           } else if (selectedPaymentMethod === "cod") {
             router.push(`/checkout/success?order=${result.order.order_number}`);
           } else {
-            // Redirect to other payment gateways
-            router.push(
-              `/checkout/payment?order=${result.order.order_number}&method=${selectedPaymentMethod}`
-            );
+            // For other payment methods (VNPay, MoMo, etc.), redirect to success page
+            // In a real implementation, you would redirect to their respective payment gateways
+            router.push(`/checkout/success?order=${result.order.order_number}`);
           }
         }
       },
     });
   };
 
-  const isFormValid =
-    selectedShippingAddress && (useSameAddress || selectedBillingAddress);
+  const isFormValid = selectedShippingAddress;
 
   return (
     <div className="space-y-6">
@@ -128,34 +111,6 @@ export default function CheckoutForm() {
             onAddressSelect={setSelectedShippingAddress}
             type="shipping"
           />
-        </CardContent>
-      </Card>
-
-      {/* Billing Address */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Địa chỉ thanh toán</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={useSameAddress}
-                onChange={(e) => setUseSameAddress(e.target.checked)}
-                className="rounded border-gray-300"
-              />
-              <span className="text-sm">Sử dụng cùng địa chỉ giao hàng</span>
-            </label>
-
-            {!useSameAddress && (
-              <AddressSelection
-                selectedAddress={selectedBillingAddress}
-                onAddressSelect={setSelectedBillingAddress}
-                type="billing"
-              />
-            )}
-          </div>
         </CardContent>
       </Card>
 
