@@ -28,29 +28,25 @@ const adminMenuItems = [
       {
         title: "Danh mục sản phẩm",
         href: "/admin/categories",
-        description: "FR25",
       },
-      { title: "Sản phẩm", href: "/admin/products", description: "FR26" },
-      { title: "Kho hàng", href: "/admin/inventory", description: "FR27" },
+      { title: "Sản phẩm", href: "/admin/products" },
+      { title: "Kho hàng", href: "/admin/inventory" },
     ],
   },
   {
     title: "Quản lý Đơn hàng",
     href: "/admin/orders",
     icon: ClipboardList,
-    description: "FR28",
   },
   {
     title: "Quản lý Khách hàng",
     href: "/admin/customers",
     icon: Users,
-    description: "FR29",
   },
   {
     title: "Quản lý Thanh toán",
     href: "/admin/payments",
     icon: CreditCard,
-    description: "FR30",
   },
   {
     title: "Báo cáo",
@@ -59,27 +55,17 @@ const adminMenuItems = [
       {
         title: "Báo cáo doanh thu",
         href: "/admin/reports/revenue",
-        description: "FR32",
       },
       {
         title: "Sản phẩm bán chạy",
         href: "/admin/reports/products",
-        description: "FR33",
       },
     ],
   },
   {
     title: "Marketing",
     icon: Megaphone,
-    items: [
-      { title: "Khuyến mãi", href: "/admin/promotions", description: "FR34" },
-    ],
-  },
-  {
-    title: "Vận chuyển",
-    href: "/admin/shipping",
-    icon: Truck,
-    description: "FR35",
+    items: [{ title: "Khuyến mãi", href: "/admin/promotions" }],
   },
   {
     title: "Quản lý nội dung",
@@ -88,7 +74,6 @@ const adminMenuItems = [
       {
         title: "Đánh giá sản phẩm",
         href: "/admin/reviews",
-        description: "FR36",
       },
     ],
   },
