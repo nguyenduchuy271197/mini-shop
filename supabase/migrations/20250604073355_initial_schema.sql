@@ -238,7 +238,7 @@ comment on table public.order_items is 'Individual items within orders with pric
 create table public.payments (
   id bigint generated always as identity primary key,
   order_id bigint references public.orders(id) on delete cascade not null,
-  payment_method text not null check (payment_method in ('vnpay', 'momo', 'cod', 'bank_transfer')),
+  payment_method text not null check (payment_method in ('vnpay', 'momo', 'cod', 'bank_transfer', 'stripe')),
   payment_provider text,
   transaction_id text,
   amount decimal(10,2) not null check (amount > 0),
@@ -246,6 +246,8 @@ create table public.payments (
   status text not null default 'pending' check (status in ('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded')),
   gateway_response jsonb,
   processed_at timestamp with time zone,
+  stripe_session_id text, -- Stripe checkout session ID
+  stripe_payment_intent_id text, -- Stripe payment intent ID
   created_at timestamp with time zone default now() not null,
   updated_at timestamp with time zone default now() not null
 );
@@ -668,6 +670,7 @@ create index idx_orders_payment_status on public.orders (payment_status);
 create index idx_order_items_order_id on public.order_items (order_id);
 create index idx_order_items_product_id on public.order_items (product_id);
 create index idx_payments_order_id on public.payments (order_id);
+create index idx_payments_stripe_session_id on public.payments (stripe_session_id);
 create index idx_reviews_product_id on public.reviews (product_id);
 create index idx_reviews_user_id on public.reviews (user_id);
 create index idx_wishlists_user_id on public.wishlists (user_id);

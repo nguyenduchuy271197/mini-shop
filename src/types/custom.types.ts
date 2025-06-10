@@ -69,6 +69,9 @@ export type GenderType = Database["public"]["Enums"]["gender_type"];
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
+// Payment method types
+export type PaymentMethod = 'vnpay' | 'momo' | 'cod' | 'bank_transfer' | 'stripe';
+
 // Address type based on database schema
 export type AddressType = 'shipping' | 'billing';
 
@@ -84,6 +87,30 @@ export type AddressData = {
   postal_code: string;
   country: string;
   phone?: string;
+};
+
+// Stripe-specific types
+export type StripeCheckoutData = {
+  orderId: number;
+  amount: number;
+  currency: string;
+  successUrl: string;
+  cancelUrl: string;
+  metadata?: Record<string, string>;
+};
+
+export type StripeSessionResponse = {
+  sessionId: string;
+  url: string;
+};
+
+export type CreatePaymentData = {
+  order_id: number;
+  payment_method: PaymentMethod;
+  amount: number;
+  currency?: string;
+  stripe_session_id?: string;
+  stripe_payment_intent_id?: string;
 };
 
 // Pagination params
@@ -105,6 +132,22 @@ export type ProductFilters = {
   is_featured?: boolean;
   inStock?: boolean; // For compatibility with hooks
   in_stock?: boolean;
+};
+
+// Extended types with relationships
+export type CartItemWithProduct = CartItem & {
+  products: Product;
+};
+
+export type OrderWithItems = Order & {
+  order_items: (OrderItem & {
+    products: Product;
+  })[];
+  payments?: Payment[];
+};
+
+export type PaymentWithOrder = Payment & {
+  orders: Order;
 };
 
 

@@ -359,6 +359,8 @@ export type Database = {
           payment_provider: string | null
           processed_at: string | null
           status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
           transaction_id: string | null
           updated_at: string
         }
@@ -373,6 +375,8 @@ export type Database = {
           payment_provider?: string | null
           processed_at?: string | null
           status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
           transaction_id?: string | null
           updated_at?: string
         }
@@ -387,6 +391,8 @@ export type Database = {
           payment_provider?: string | null
           processed_at?: string | null
           status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
           transaction_id?: string | null
           updated_at?: string
         }

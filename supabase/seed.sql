@@ -205,19 +205,19 @@ INSERT INTO public.order_items (order_id, product_id, product_name, product_sku,
 -- PAYMENTS DATA
 -- =====================================================
 
-INSERT INTO public.payments (order_id, payment_method, payment_provider, transaction_id, amount, currency, status, gateway_response, processed_at) VALUES
+INSERT INTO public.payments (order_id, payment_method, payment_provider, transaction_id, amount, currency, status, gateway_response, processed_at, stripe_session_id, stripe_payment_intent_id) VALUES
 -- Payment for Order 1
 (1, 'vnpay', 'VNPay', 'VNP123456789', 32919000.00, 'VND', 'completed', 
 '{"vnp_ResponseCode": "00", "vnp_TransactionStatus": "00", "vnp_BankCode": "NCB", "vnp_PayDate": "20241201101530"}', 
-'2024-12-01 10:15:30+07'),
+'2024-12-01 10:15:30+07', NULL, NULL),
 
 -- Payment for Order 2
 (2, 'momo', 'MoMo', 'MOMO987654321', 36267900.00, 'VND', 'completed',
 '{"partnerCode": "MOMO", "resultCode": 0, "message": "Successful", "transId": "987654321"}',
-'2024-12-03 15:20:45+07'),
+'2024-12-03 15:20:45+07', NULL, NULL),
 
 -- Payment for Order 3 (pending)
-(3, 'cod', NULL, NULL, 46197000.00, 'VND', 'pending', NULL, NULL);
+(3, 'cod', NULL, NULL, 46197000.00, 'VND', 'pending', NULL, NULL, NULL, NULL);
 
 -- =====================================================
 -- REVIEWS DATA

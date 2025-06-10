@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useCreateOrder, type CreateOrderData } from "@/hooks/orders";
 import { useCart, useCartTotal } from "@/hooks/cart";
+import { useCreateStripeCheckout } from "@/hooks/payments/use-stripe-checkout";
 import { useToast } from "@/hooks/use-toast";
 import AddressSelection from "./address-selection";
-import PaymentMethodSelection from "./payment-method-selection";
+import PaymentMethodSelector from "./payment-method-selector";
 import OrderNotes from "./order-notes";
 import ShippingMethodSelection from "./shipping-method-selection";
-import type { AddressData } from "@/types/custom.types";
+import type { AddressData, PaymentMethod } from "@/types/custom.types";
 
 export default function CheckoutForm() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function CheckoutForm() {
   const { data: cartData } = useCart();
   const { data: cartTotalData } = useCartTotal();
   const createOrder = useCreateOrder();
+  const createStripeCheckout = useCreateStripeCheckout();
 
   const [selectedShippingAddress, setSelectedShippingAddress] =
     useState<AddressData | null>(null);
@@ -27,7 +29,8 @@ export default function CheckoutForm() {
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [selectedShippingMethod, setSelectedShippingMethod] =
     useState("standard");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cod");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<PaymentMethod>("stripe");
   const [orderNotes, setOrderNotes] = useState("");
   const [couponCode] = useState("");
 
@@ -78,10 +81,25 @@ export default function CheckoutForm() {
     createOrder.mutate(orderData, {
       onSuccess: (result) => {
         if (result.success && result.order) {
-          // Redirect to payment or success page based on payment method
-          if (selectedPaymentMethod === "cod") {
+          // Handle different payment methods
+          if (selectedPaymentMethod === "stripe") {
+            // Create Stripe checkout session
+            const totalAmount = cartTotalData?.breakdown?.total || 0;
+            createStripeCheckout.mutate({
+              orderId: result.order.id,
+              amount: totalAmount,
+              currency: "VND",
+              successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order=${result.order.order_number}`,
+              cancelUrl: `${window.location.origin}/checkout?cancelled=true`,
+              metadata: {
+                orderNumber: result.order.order_number,
+                shippingMethod: selectedShippingMethod,
+              },
+            });
+          } else if (selectedPaymentMethod === "cod") {
             router.push(`/checkout/success?order=${result.order.order_number}`);
           } else {
+            // Redirect to other payment gateways
             router.push(
               `/checkout/payment?order=${result.order.order_number}&method=${selectedPaymentMethod}`
             );
@@ -152,17 +170,10 @@ export default function CheckoutForm() {
       </Card>
 
       {/* Payment Method */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Phương thức thanh toán</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PaymentMethodSelection
-            selectedMethod={selectedPaymentMethod}
-            onMethodSelect={setSelectedPaymentMethod}
-          />
-        </CardContent>
-      </Card>
+      <PaymentMethodSelector
+        selectedMethod={selectedPaymentMethod}
+        onMethodChange={setSelectedPaymentMethod}
+      />
 
       {/* Order Notes */}
       <Card>
