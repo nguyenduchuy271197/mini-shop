@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Search, ShoppingCart, User, Menu, X, Heart } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,7 +19,6 @@ import { useWishlist } from "@/hooks/wishlists/use-wishlist";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter();
 
   const { data: profileData } = useProfile();
   const { mutate: logout } = useLogout();
