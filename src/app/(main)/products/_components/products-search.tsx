@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ export default function ProductsSearch({
   const [query, setQuery] = useState(initialQuery);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isInitialMount = useRef(true);
 
   const handleSearch = useCallback(
     (searchQuery: string) => {
@@ -35,14 +36,31 @@ export default function ProductsSearch({
     [router, searchParams]
   );
 
-  // Debounce search
+  // Debounce search - but don't trigger on initial mount with empty query
+  // and don't trigger again if query is empty after initial mount
   useEffect(() => {
+    // Skip on initial mount if query is empty
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if (!query.trim()) {
+        return;
+      }
+    }
+
+    // Also skip if query is empty and we're not on initial mount
+    // This prevents triggering search when user clears input or component re-renders
+    if (!query.trim()) {
+      return;
+    }
+
     const timeout = setTimeout(() => {
       handleSearch(query);
     }, 500);
 
-    return () => clearTimeout(timeout);
-  }, [query, handleSearch]);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [query]); // Remove handleSearch from dependencies to prevent infinite loops
 
   const handleClear = () => {
     setQuery("");

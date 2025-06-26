@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
@@ -24,19 +24,16 @@ export default function ProductsPagination({
 }: ProductsPaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const navigateToPage = (page: number) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
-    router.push(`/products?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
-  const startIndex = (currentPage - 1) * limit + 1;
-  const endIndex = Math.min(currentPage * limit, total);
-
-  // Generate page numbers to show
-  const getPageNumbers = () => {
-    const delta = 2;
+  const getVisiblePages = () => {
+    const delta = 2; // Show 2 pages on each side of current page
     const range = [];
     const rangeWithDots = [];
 
@@ -65,20 +62,22 @@ export default function ProductsPagination({
     return rangeWithDots;
   };
 
+  const visiblePages = getVisiblePages();
+  const startIndex = (currentPage - 1) * limit + 1;
+  const endIndex = Math.min(currentPage * limit, total);
+
   if (totalPages <= 1) {
     return null;
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-      {/* Results info */}
-      <div className="text-sm text-muted-foreground">
+    <div className="flex flex-col items-center space-y-4">
+      <p className="text-sm text-muted-foreground">
         Hiển thị {startIndex}-{endIndex} trong tổng số {total} sản phẩm
-      </div>
+      </p>
 
-      {/* Pagination controls */}
-      <div className="flex items-center gap-1">
-        {/* First page */}
+      <div className="flex items-center space-x-2">
+        {/* First page and Previous page */}
         <Button
           variant="outline"
           size="sm"
@@ -89,7 +88,6 @@ export default function ProductsPagination({
           <ChevronsLeft className="h-4 w-4" />
         </Button>
 
-        {/* Previous page */}
         <Button
           variant="outline"
           size="sm"
@@ -100,28 +98,27 @@ export default function ProductsPagination({
         </Button>
 
         {/* Page numbers */}
-        <div className="flex items-center gap-1">
-          {getPageNumbers().map((pageNumber, index) => {
-            if (pageNumber === "...") {
+        <div className="flex items-center space-x-1">
+          {visiblePages.map((page, index) => {
+            if (page === "...") {
               return (
-                <span key={index} className="px-2 text-muted-foreground">
+                <span
+                  key={index}
+                  className="px-2 text-sm text-muted-foreground"
+                >
                   ...
                 </span>
               );
             }
 
-            const page = pageNumber as number;
-            const isCurrentPage = page === currentPage;
-
             return (
               <Button
                 key={page}
-                variant={isCurrentPage ? "default" : "outline"}
+                variant={currentPage === page ? "default" : "outline"}
                 size="sm"
-                onClick={() => navigateToPage(page)}
-                className={`min-w-[40px] ${
-                  isCurrentPage ? "pointer-events-none" : ""
-                }`}
+                onClick={() => navigateToPage(page as number)}
+                disabled={currentPage === page}
+                className="min-w-[40px]"
               >
                 {page}
               </Button>
@@ -129,7 +126,7 @@ export default function ProductsPagination({
           })}
         </div>
 
-        {/* Next page */}
+        {/* Next page and Last page */}
         <Button
           variant="outline"
           size="sm"
@@ -139,7 +136,6 @@ export default function ProductsPagination({
           <ChevronRight className="h-4 w-4" />
         </Button>
 
-        {/* Last page */}
         <Button
           variant="outline"
           size="sm"
