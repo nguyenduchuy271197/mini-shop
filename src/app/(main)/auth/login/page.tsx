@@ -3,12 +3,37 @@ import AuthLayout from "@/components/auth/auth-layout";
 import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle } from "lucide-react";
+import type { Metadata } from "next";
 
 interface LoginPageProps {
   searchParams: {
     message?: string;
   };
 }
+
+export const metadata: Metadata = {
+  title: "Đăng nhập",
+  description:
+    "Đăng nhập vào tài khoản Minishop của bạn để truy cập vào lịch sử mua hàng, danh sách yêu thích và nhận được ưu đãi độc quyền.",
+  keywords: "đăng nhập, tài khoản, thành viên minishop",
+  openGraph: {
+    title: "Đăng nhập | Minishop",
+    description: "Đăng nhập vào tài khoản Minishop của bạn",
+    url: "/auth/login",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1556742111-a301076d9d18?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Đăng nhập Minishop",
+      },
+    ],
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function LoginPage({ searchParams }: LoginPageProps) {
   return (

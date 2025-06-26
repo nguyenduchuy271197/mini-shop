@@ -80,7 +80,7 @@ export default function SuccessContent({
       }
       // Keep pending for other statuses
     }
-  }, [sessionId, paymentStatusData, cartCleared]);
+  }, [sessionId, paymentStatusData, cartCleared, clearCart]);
 
   const getStatusIcon = () => {
     if (sessionId && verificationStatus === "pending") {

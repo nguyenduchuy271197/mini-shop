@@ -9,6 +9,27 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Chính sách giao hàng",
+  description:
+    "Chính sách giao hàng và vận chuyển của Minishop. Thông tin về thời gian giao hàng, phí vận chuyển và khu vực phục vụ.",
+  keywords: "chính sách giao hàng, vận chuyển, phí ship, thời gian giao hàng",
+  openGraph: {
+    title: "Chính sách giao hàng | Minishop",
+    description: "Chính sách giao hàng và vận chuyển của Minishop",
+    url: "/shipping",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Chính sách giao hàng Minishop",
+      },
+    ],
+  },
+};
 
 export default function ShippingPage() {
   const shippingZones = [

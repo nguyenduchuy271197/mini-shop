@@ -10,6 +10,28 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Chính sách bảo mật",
+  description:
+    "Chính sách bảo mật thông tin khách hàng của Minishop. Tìm hiểu cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn.",
+  keywords:
+    "chính sách bảo mật, bảo vệ thông tin, quyền riêng tư, an toàn dữ liệu",
+  openGraph: {
+    title: "Chính sách bảo mật | Minishop",
+    description: "Chính sách bảo mật thông tin khách hàng của Minishop",
+    url: "/privacy",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Chính sách bảo mật Minishop",
+      },
+    ],
+  },
+};
 
 export default function PrivacyPage() {
   const sections = [

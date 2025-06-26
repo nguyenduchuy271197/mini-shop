@@ -4,6 +4,7 @@ import ProductsSearch from "./_components/products-search";
 import ProductsSorting from "./_components/products-sorting";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Metadata } from "next";
 
 interface ProductsPageProps {
   searchParams: {
@@ -19,6 +20,27 @@ interface ProductsPageProps {
     inStock?: string;
   };
 }
+
+export const metadata: Metadata = {
+  title: "Sản phẩm",
+  description:
+    "Khám phá bộ sưu tập sản phẩm đa dạng tại Minishop. Hàng nghìn sản phẩm chất lượng cao từ các thương hiệu uy tín với giá cạnh tranh. Mua sắm an toàn, giao hàng nhanh.",
+  keywords:
+    "sản phẩm, mua sắm online, thương hiệu, chất lượng, giá tốt, giao hàng nhanh",
+  openGraph: {
+    title: "Sản phẩm | Minishop",
+    description: "Khám phá bộ sưu tập sản phẩm đa dạng tại Minishop",
+    url: "/products",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Sản phẩm Minishop",
+      },
+    ],
+  },
+};
 
 export default function ProductsPage({ searchParams }: ProductsPageProps) {
   // Parse search params

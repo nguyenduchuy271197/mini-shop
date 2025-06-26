@@ -8,6 +8,31 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { User, ShoppingBag, Heart, MapPin } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Tài khoản của tôi",
+  description:
+    "Quản lý tài khoản cá nhân, xem lịch sử đơn hàng, cập nhật thông tin và theo dõi giao hàng tại Minishop.",
+  keywords: "tài khoản, thông tin cá nhân, lịch sử đơn hàng, dashboard",
+  openGraph: {
+    title: "Tài khoản của tôi | Minishop",
+    description: "Quản lý tài khoản cá nhân tại Minishop",
+    url: "/dashboard",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1556742111-a301076d9d18?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Dashboard Minishop",
+      },
+    ],
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function DashboardPage() {
   return (

@@ -1,6 +1,27 @@
 import { Heart, Users, Award, Target, Eye, Handshake } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Về chúng tôi",
+  description:
+    "Tìm hiểu về Minishop - siêu thị trực tuyến hàng đầu Việt Nam. Cam kết mang đến trải nghiệm mua sắm tuyệt vời với sản phẩm chất lượng và dịch vụ tận tâm.",
+  keywords: "về minishop, giới thiệu, tầm nhìn, sứ mệnh, lịch sử phát triển",
+  openGraph: {
+    title: "Về chúng tôi | Minishop",
+    description: "Tìm hiểu về Minishop - siêu thị trực tuyến hàng đầu Việt Nam",
+    url: "/about",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1521790797524-b2497295b8a0?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Về chúng tôi - Minishop",
+      },
+    ],
+  },
+};
 
 export default function AboutPage() {
   const milestones = [

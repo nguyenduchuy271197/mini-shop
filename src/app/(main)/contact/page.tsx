@@ -4,6 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Liên hệ",
+  description:
+    "Liên hệ với đội ngũ hỗ trợ khách hàng Minishop. Chúng tôi luôn sẵn sàng giải đáp thắc mắc và hỗ trợ bạn 24/7.",
+  keywords: "liên hệ, hỗ trợ khách hàng, hotline, email, địa chỉ",
+  openGraph: {
+    title: "Liên hệ | Minishop",
+    description: "Liên hệ với đội ngũ hỗ trợ khách hàng Minishop",
+    url: "/contact",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Liên hệ Minishop",
+      },
+    ],
+  },
+};
 
 export default function ContactPage() {
   return (

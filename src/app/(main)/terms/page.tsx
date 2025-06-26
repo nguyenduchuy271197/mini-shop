@@ -10,6 +10,27 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Điều khoản sử dụng",
+  description:
+    "Điều khoản và điều kiện sử dụng dịch vụ của Minishop. Quy định về quyền và nghĩa vụ của khách hàng khi sử dụng website.",
+  keywords: "điều khoản sử dụng, điều kiện, quy định, nghĩa vụ khách hàng",
+  openGraph: {
+    title: "Điều khoản sử dụng | Minishop",
+    description: "Điều khoản và điều kiện sử dụng dịch vụ của Minishop",
+    url: "/terms",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Điều khoản sử dụng Minishop",
+      },
+    ],
+  },
+};
 
 export default function TermsPage() {
   const sections = [

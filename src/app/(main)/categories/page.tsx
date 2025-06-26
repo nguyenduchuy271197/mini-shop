@@ -1,6 +1,28 @@
 import { Suspense } from "react";
 import CategoriesGrid from "./_components/categories-grid";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Danh mục sản phẩm",
+  description:
+    "Khám phá các danh mục sản phẩm đa dạng tại Minishop. Điện tử, thời trang, gia dụng, sách, thể thao và nhiều danh mục khác. Tìm kiếm sản phẩm theo danh mục một cách dễ dàng.",
+  keywords:
+    "danh mục, điện tử, thời trang, gia dụng, sách, thể thao, phân loại sản phẩm",
+  openGraph: {
+    title: "Danh mục sản phẩm | Minishop",
+    description: "Khám phá các danh mục sản phẩm đa dạng tại Minishop",
+    url: "/categories",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Danh mục sản phẩm Minishop",
+      },
+    ],
+  },
+};
 
 export default function CategoriesPage() {
   return (

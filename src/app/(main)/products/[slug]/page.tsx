@@ -20,21 +20,45 @@ export async function generateMetadata({
 
   if (!result.success) {
     return {
-      title: "Sản phẩm không tìm thấy - Mini Shop",
+      title: "Sản phẩm không tìm thấy",
+      description: "Sản phẩm bạn tìm kiếm không tồn tại hoặc đã được gỡ bỏ",
     };
   }
 
   const { product } = result;
+  const price = product.price?.toLocaleString("vi-VN") + "đ";
 
   return {
-    title: `${product.name} - Mini Shop`,
+    title: product.name,
     description:
       product.description ||
-      `Mua ${product.name} với giá tốt nhất tại Mini Shop`,
+      `Mua ${product.name} chính hãng với giá ${price} tại Minishop. Giao hàng nhanh, bảo hành chính hãng, đổi trả dễ dàng.`,
+    keywords: `${product.name}, ${product.category?.name}, mua ${product.name}, giá ${product.name}`,
     openGraph: {
-      title: product.name,
-      description: product.description || undefined,
-      images: product.images?.length ? [product.images[0]] : undefined,
+      title: `${product.name} | Minishop`,
+      description:
+        product.description ||
+        `Mua ${product.name} chính hãng với giá ${price}`,
+      url: `/products/${params.slug}`,
+      type: "website",
+      images: product.images?.length
+        ? [
+            {
+              url: product.images[0],
+              width: 800,
+              height: 600,
+              alt: product.name,
+            },
+          ]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | Minishop`,
+      description:
+        product.description ||
+        `Mua ${product.name} chính hãng với giá ${price}`,
+      images: product.images?.length ? [product.images[0]] : [],
     },
   };
 }

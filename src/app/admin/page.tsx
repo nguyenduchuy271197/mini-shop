@@ -4,6 +4,31 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminDashboardStats } from "./_components/admin-dashboard-stats";
 import { AdminRecentOrders } from "./_components/admin-recent-orders";
 import { AdminTopProducts } from "./_components/admin-top-products";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Quản trị hệ thống",
+  description:
+    "Bảng điều khiển quản trị Minishop. Quản lý sản phẩm, đơn hàng, khách hàng và thống kê bán hàng.",
+  keywords: "admin, quản trị, bảng điều khiển, thống kê",
+  openGraph: {
+    title: "Quản trị hệ thống | Minishop",
+    description: "Bảng điều khiển quản trị Minishop",
+    url: "/admin",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop",
+        width: 1200,
+        height: 630,
+        alt: "Admin Dashboard Minishop",
+      },
+    ],
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AdminDashboardPage() {
   const supabase = createClient();
