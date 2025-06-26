@@ -60,7 +60,7 @@ export default function ProductsSearch({
     return () => {
       clearTimeout(timeout);
     };
-  }, [query]); // Remove handleSearch from dependencies to prevent infinite loops
+  }, [query, handleSearch]); // Remove handleSearch from dependencies to prevent infinite loops
 
   const handleClear = () => {
     setQuery("");
