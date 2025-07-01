@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛒 MiniShop - Nền Tảng Thương Mại Điện Tử
 
-## Getting Started
+Nền tảng thương mại điện tử kết nối người bán và người mua, xây dựng với Next.js 14, TypeScript và Supabase.
 
-First, run the development server:
+## ✨ Tính năng
+
+- 🔐 **Authentication**: Đăng ký/đăng nhập, phân quyền Customer/Seller/Admin
+- 🛍️ **Product Management**: Quản lý sản phẩm, danh mục và inventory
+- 🛒 **Shopping Cart**: Giỏ hàng, wishlist và checkout process
+- 💳 **Payment Integration**: Thanh toán đa dạng, quản lý đơn hàng
+- 📦 **Order Management**: Theo dõi đơn hàng, vận chuyển
+- ⭐ **Review System**: Đánh giá sản phẩm và người bán
+- 📊 **Dashboard**: Seller analytics, Customer order tracking
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS, shadcn/ui
+- **Backend**: Supabase, PostgreSQL
+- **State Management**: TanStack Query, React Hook Form
+- **Validation**: Zod
+- **Payment**: Stripe/VNPay integration
+
+## 🚀 Quick Start
+
+### 1. Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/nguyenduchuy271197/mini-shop
+cd minishop
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Tạo `.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+```
 
-## Learn More
+### 3. Database Setup
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npx supabase db reset
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Run Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm dev
+```
 
-## Deploy on Vercel
+Mở [http://localhost:3000](http://localhost:3000)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📁 Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── actions/          # Server actions
+├── app/             # Next.js App Router
+│   ├── (auth)/      # Auth pages
+│   ├── (customer)/  # Customer dashboard
+│   ├── (seller)/    # Seller dashboard
+│   ├── (admin)/     # Admin panel
+│   └── (shop)/      # Public shop
+├── components/      # UI components
+├── hooks/           # Custom hooks
+├── lib/             # Utilities & config
+└── types/           # TypeScript types
+```
+
+## 🔧 Scripts
+
+```bash
+pnpm dev      # Development server
+pnpm build    # Build production
+pnpm lint     # Run linter
+```
+
+## 👥 User Roles
+
+### 🛍️ Customer
+
+- Duyệt và tìm kiếm sản phẩm
+- Quản lý giỏ hàng và wishlist
+- Đặt hàng và thanh toán trực tuyến
+- Theo dõi đơn hàng và đánh giá sản phẩm
+
+### 🏪 Seller
+
+- Quản lý products và inventory
+- Xử lý đơn hàng và shipping
+- Xem analytics và sales reports
+- Quản lý customer reviews
+
+### 👨‍💻 Admin
+
+- Quản lý users và seller verification
+- Quản lý categories và product approval
+- Xem system analytics và revenue reports
+
+## 🚀 Deployment
+
+Deploy dễ dàng với [Vercel](https://vercel.com):
+
+1. Connect repository
+2. Set environment variables
+3. Deploy
