@@ -18,7 +18,7 @@ Nền tảng thương mại điện tử kết nối người bán và người 
 - **Backend**: Supabase, PostgreSQL
 - **State Management**: TanStack Query, React Hook Form
 - **Validation**: Zod
-- **Payment**: Stripe/VNPay integration
+- **Payment**: Stripe integration
 
 ## 🚀 Quick Start
 
